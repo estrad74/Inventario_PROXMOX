@@ -1,19 +1,28 @@
 ---
-- name: Inventario dinámico desde Proxmox
+- name: Generar inventario desde Proxmox
   hosts: localhost
   gather_facts: no
   tasks:
-    - name: Obtener VMs de Proxmox
+    - name: Obtener lista de VMs desde Proxmox
       community.general.proxmox_vm_info:
         api_user: 'root@pam'
         api_password: '{{ proxmox_pass }}'
-        api_host: 'proxmox.tu.lab'
-      register: resultado
+        api_host: '192.168.1.52'
+      register: proxmox_vms
 
-    - name: Añadir hosts dinámicamente
-      add_host:
-        name: "{{ item.name }}"
-        groups: proxmox_vms
-        ansible_host: "{{ item.ip }}"
-      loop: "{{ resultado.virtual_machines }}"
-      when: item.status == 'running'
+    - name: Crear inventario dinámico en formato JSON
+      copy:
+        dest: "/tmp/proxmox_inventory.json"
+        content: |
+          {
+            "_meta": {
+              "hostvars": {}
+            },
+            "proxmox_vms": {
+              "hosts": [
+                {% for vm in proxmox_vms.resources %}
+                  "{{ vm.name }}"{% if not loop.last %},{% endif %}
+                {% endfor %}
+              ]
+            }
+          }
