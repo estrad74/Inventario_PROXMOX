@@ -1,0 +1,19 @@
+---
+- name: Inventario dinámico desde Proxmox
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Obtener VMs de Proxmox
+      community.general.proxmox_vm_info:
+        api_user: 'root@pam'
+        api_password: '{{ proxmox_pass }}'
+        api_host: 'proxmox.tu.lab'
+      register: resultado
+
+    - name: Añadir hosts dinámicamente
+      add_host:
+        name: "{{ item.name }}"
+        groups: proxmox_vms
+        ansible_host: "{{ item.ip }}"
+      loop: "{{ resultado.virtual_machines }}"
+      when: item.status == 'running'
