@@ -4,4 +4,7 @@ validate_certs: false
 user: root@pam
 password: pr0xm0x
 want_cts: true
-
+compose:
+  ansible_host: ip
+strict: False
+debug: True
