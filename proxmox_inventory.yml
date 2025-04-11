@@ -1,0 +1,5 @@
+plugin: community.general.proxmox
+url: https://192.168.1.52:8006
+validate_certs: false
+user: root@pam!mytoken
+password: pr0xm0x
