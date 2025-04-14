@@ -1,5 +1,5 @@
 plugin: community.general.proxmox
-url: '{{ lookup("env", "PROXMOX_URL") }}'
+url: 'https://192.168.1.52:8006'
 user: '{{ lookup("env", "PROXMOX_USER") }}'
 password: '{{ lookup("env", "PROXMOX_PASSWORD") }}'
 validate_certs: false
