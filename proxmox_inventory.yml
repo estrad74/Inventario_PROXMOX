@@ -1,10 +1,5 @@
 plugin: community.general.proxmox
 url: https://192.168.1.52:8006
 validate_certs: false
-user: root@pam
+user: root@pve
 password: pr0xm0x
-want_cts: true
-compose:
-  ansible_host: ip
-strict: False
-debug: True
