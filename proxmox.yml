@@ -11,4 +11,6 @@ groupby:
   - type
 want_proxmox_nodes_as_hosts: true
 strict: false
+compose:
+  ansible_host: proxmox_agent_interfaces[0].ip if proxmox_agent_interfaces else proxmox_net0_ip if proxmox_net0_ip else proxmox_ipconfig0_ip if proxmox_ipconfig0_ip else ansible_host
 
