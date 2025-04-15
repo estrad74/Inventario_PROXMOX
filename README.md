@@ -1,4 +1,4 @@
-INTRODUCCIÓN
+# INTRODUCCIÓN
 Proyecto para sincronización de inventario en Ansible AWX tomando como fuente PROXMOX.
 
 Se utiliza como fuente de inventario el plugin community.general.proxmox, el cual se
@@ -11,14 +11,14 @@ El plugin genera automáticamente varios grupos de hosts basándose en varios cr
 nodos del datacenter, tipos de elementos (máquinas virtuales y contenedores) y elementos
 encendidos o apagados.
 
-INSTRUCCIONES
+# INSTRUCCIONES
 
 1. Instalar la colección de Proxmox para Ansible: primero, necesitamos asegurarnos de que AWX tenga acceso a la colección de Proxmox:
 
-# Conectarse al pod de AWX
+Conectarse al pod de AWX
 kubectl exec -it $(kubectl get pods -n awx -l "app.kubernetes.io/component=awx" -o jsonpath="{.items[0].metadata.name}") -n awx -- bash
 
-# Instalar la colección
+Instalar la colección
 ansible-galaxy collection install community.general
 
 Si no se consigue instalar la colección no pasa nada, la añadiremos posteriormente en el fichero requirements.yml del proyecto.
