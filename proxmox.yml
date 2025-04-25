@@ -7,11 +7,10 @@ want_facts: true
 qemu_extended_statuses: true
 use_extra_vars: true
 compose:
-  original_name: proxmox_name
-  config_name: proxmox_name | regex_replace('---.*$', '')
-  alternate_name: proxmox_name | regex_replace('^.*---', '')
-hostnames:
-  - (proxmox_name | default("")) | regex_replace('---.*$', '')
+  name: (proxmox_name | default("")) | regex_replace('---.*$','')
+  original_name: (proxmox_name | default(""))
+  config_name: (proxmox_name | default("")) | regex_replace('---.*$', '')
+  alternate_name: (proxmox_name | default("")) | regex_replace('^.*---', '')
 keyed_groups:
   - prefix: os
     key: proxmox_ostype
