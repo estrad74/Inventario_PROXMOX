@@ -7,9 +7,13 @@ want_facts: true
 qemu_extended_statuses: true
 use_extra_vars: true
 compose:
-  config_name: proxmox_name | regex_replace('.*---', '')
-  alternate_name: proxmox_name | regex_replace('---*.','')
+  config_name: proxmox_name | regex_replace('^.*---', '')     # codigo2
+  alternate_name: proxmox_name | regex_replace('---.*$', '')  # codigo1
   ansible_host: proxmox_ipconfig0.ip | default(proxmox_net0.ip) | ipaddr('address')
+
+hostnames:
+  - proxmox_name | regex_replace('---.*$', '')  # Redefine el hostname con codigo1
+
 keyed_groups:
   - prefix: os
     key: proxmox_ostype
