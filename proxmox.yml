@@ -7,11 +7,11 @@ want_facts: true
 qemu_extended_statuses: true
 use_extra_vars: true
 compose:
-  ansible_host: proxmox_ipconfig0.ip | default(proxmox_net0.ip) | ipaddr('address')
   name: (proxmox_name | default("")) | regex_replace('---.*$', '')
   original_name: (proxmox_name | default(""))
   config_name: (proxmox_name | default("")) | regex_replace('---.*$', '')
   alternate_name: (proxmox_name | default("")) | regex_replace('^.*---', '')
+  ansible_host: config_name
 keyed_groups:
   - prefix: os
     key: proxmox_ostype
