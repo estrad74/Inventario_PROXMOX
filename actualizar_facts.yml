@@ -2,12 +2,33 @@
 - name: Recopilar facts y actualizarlos en AWX
   hosts: all
   gather_facts: yes
-
   vars:
+    ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1"
     awx_api_url: "{{ lookup('env', 'TOWER_HOST') | default('https://awx.example.com', true) }}"
     awx_oauth_token: "{{ lookup('env', 'TOWER_OAUTH_TOKEN') }}"
-
   tasks:
+    - name: Buscar ID del host en AWX por nombre
+      uri:
+        url: "{{ awx_api_url }}/api/v2/hosts/?name={{ inventory_hostname }}"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ awx_oauth_token }}"
+          Content-Type: "application/json"
+        return_content: yes
+        status_code: 200
+        validate_certs: false
+      register: host_info
+      delegate_to: localhost
+
+    - name: Definir host_id
+      set_fact:
+        host_id: "{{ (host_info.json.results[0].id | default(None)) }}"
+
+    - name: Fallar si no se encontró el host
+      fail:
+        msg: "No se pudo encontrar el host {{ inventory_hostname }} en AWX."
+      when: host_id is not defined
+
     - name: Mostrar algunos facts para depuración
       debug:
         msg:
@@ -19,7 +40,7 @@
 
     - name: Actualizar variables del host en AWX
       uri:
-        url: "{{ awx_api_url }}/api/v2/hosts/{{ inventory_hostname }}/"
+        url: "{{ awx_api_url }}/api/v2/hosts/{{ host_id }}/"
         method: PATCH
         headers:
           Authorization: "Bearer {{ awx_oauth_token }}"
