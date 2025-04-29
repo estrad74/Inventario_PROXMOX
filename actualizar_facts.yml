@@ -4,12 +4,12 @@
   gather_facts: yes
   vars:
     ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1"
-    awx_api_url: "{{ lookup('env', 'TOWER_HOST') | default('https://192.168.49.2:32641', true) }}"
+    awx_api_url: "{{ lookup('env', 'TOWER_HOST') | default('http://192.168.49.2:32641', true) }}"
     awx_oauth_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
   tasks:
     - name: Recopilar facts del host
       setup:
-    
+
     - name: Buscar ID del host en AWX por nombre
       uri:
         url: "{{ awx_api_url }}/api/v2/hosts/?name={{ inventory_hostname }}"
