@@ -1,0 +1,96 @@
+---
+- name: Recopilar facts y actualizarlos en AWX
+  hosts: all
+  gather_facts: yes
+  vars:
+    ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1"
+    awx_api_url: "{{ lookup('env', 'TOWER_HOST') | default('http://192.168.49.2:32641', true) }}"
+    awx_oauth_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
+  tasks:
+    # Tareas específicas para Linux
+    - name: Procesar facts para Linux
+      when: ansible_system == "Linux"
+      set_fact:
+        os_type: "Linux"
+        os_family: "{{ ansible_os_family }}"
+        os_distribution: "{{ ansible_distribution }}"
+        os_distribution_version: "{{ ansible_distribution_version }}"
+        os_distribution_release: "{{ ansible_distribution_release | default('') }}"
+        os_kernel: "{{ ansible_kernel }}"
+        os_architecture: "{{ ansible_architecture }}"
+        os_machine: "{{ ansible_machine }}"
+        os_userspace_bits: "{{ ansible_userspace_bits }}"
+        os_service_manager: "{{ ansible_service_mgr }}"
+        os_package_manager: "{{ ansible_pkg_mgr }}"
+        os_virtualization_type: "{{ ansible_virtualization_type }}"
+        os_virtualization_role: "{{ ansible_virtualization_role }}"
+        os_selinux: "{{ ansible_selinux.status | default('disabled') if ansible_selinux is defined else 'undefined' }}"
+
+    # Tareas específicas para Windows
+    - name: Procesar facts para Windows
+      when: ansible_system == "Win32NT"
+      set_fact:
+        os_type: "Windows"
+        os_family: "Windows"
+        os_distribution: "{{ ansible_distribution }}"
+        os_distribution_version: "{{ ansible_distribution_version }}"
+        os_architecture: "{{ ansible_architecture }}"
+        os_machine: "{{ ansible_machine }}"
+        os_windows_domain: "{{ ansible_domain }}"
+        os_windows_installdate: "{{ ansible_win_rm_certificate_expires | default('') }}"
+        os_powershell_version: "{{ ansible_powershell_version | default('') }}"
+
+    # Tareas comunes para todos los sistemas
+    - name: Registrar información básica para cualquier otro sistema
+      when: ansible_system != "Linux" and ansible_system != "Win32NT"
+      set_fact:
+        os_type: "{{ ansible_system }}"
+        os_family: "{{ ansible_os_family | default('Unknown') }}"
+        os_distribution: "{{ ansible_distribution | default('Unknown') }}"
+        os_distribution_version: "{{ ansible_distribution_version | default('Unknown') }}"
+        os_architecture: "{{ ansible_architecture | default('Unknown') }}"
+
+    # Almacenar toda la información como facts en AWX
+    - name: Registrar todas las variables como facts de host en AWX
+      set_stats:
+        data:
+          # Variables comunes para todos los sistemas
+          os_type: "{{ os_type | default(ansible_system) }}"
+          os_family: "{{ os_family | default('Unknown') }}"
+          os_distribution: "{{ os_distribution | default('Unknown') }}"
+          os_distribution_version: "{{ os_distribution_version | default('Unknown') }}"
+          os_architecture: "{{ os_architecture | default('Unknown') }}"
+          os_machine: "{{ os_machine | default('Unknown') }}"
+          # Variables específicas de Linux
+          os_distribution_release: "{{ os_distribution_release | default('') }}"
+          os_kernel: "{{ os_kernel | default('') }}"
+          os_userspace_bits: "{{ os_userspace_bits | default('') }}"
+          os_service_manager: "{{ os_service_manager | default('') }}"
+          os_package_manager: "{{ os_package_manager | default('') }}"
+          os_virtualization_type: "{{ os_virtualization_type | default('') }}"
+          os_virtualization_role: "{{ os_virtualization_role | default('') }}"
+          os_selinux: "{{ os_selinux | default('') }}"
+          # Variables específicas de Windows
+          os_windows_domain: "{{ os_windows_domain | default('') }}"
+          os_windows_installdate: "{{ os_windows_installdate | default('') }}"
+          os_powershell_version: "{{ os_powershell_version | default('') }}"
+        per_host: yes
+
+    - name: Mostrar resumen de información recopilada
+      debug:
+        msg: |
+          Sistema: {{ os_type }}
+          Familia: {{ os_family }}
+          Distribución: {{ os_distribution }}
+          Versión: {{ os_distribution_version }}
+          Arquitectura: {{ os_architecture }}
+          {% if os_type == "Linux" %}
+          Kernel: {{ os_kernel }}
+          Gestor de paquetes: {{ os_package_manager }}
+          Virtualización: {{ os_virtualization_type }} ({{ os_virtualization_role }})
+          SELinux: {{ os_selinux }}
+          {% endif %}
+          {% if os_type == "Windows" %}
+          Dominio: {{ os_windows_domain }}
+          PowerShell: {{ os_powershell_version }}
+          {% endif %}
