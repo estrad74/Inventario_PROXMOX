@@ -3,69 +3,57 @@
   hosts: all
   gather_facts: yes
   vars:
+    awxinventory_id: 3
     ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1"
   tasks:
-    # Tareas específicas para Linux
-    - name: Procesar facts para Linux
-      when: ansible_system == "Linux"
+  
+    # Tarea que recopila la información de los hosts que aparece en la
+    # pestaña Facts del inventario en AWX.
+    - name: Recopilar información del sistema
+      setup:
+      
+    # Esta tarea obtiene una lista de las variables más relevantes del host.
+    - name: Obtener las variables relevantes del host
       set_fact:
-        ansible_facts:
-          os_type: "Linux"
-          os_family: "{{ ansible_os_family }}"
-          os_distribution: "{{ ansible_distribution }}"
-          os_distribution_version: "{{ ansible_distribution_version }}"
-          os_distribution_release: "{{ ansible_distribution_release | default('') }}"
-          os_kernel: "{{ ansible_kernel }}"
-          os_architecture: "{{ ansible_architecture }}"
-          os_machine: "{{ ansible_machine }}"
-          os_userspace_bits: "{{ ansible_userspace_bits }}"
-          os_service_manager: "{{ ansible_service_mgr }}"
-          os_package_manager: "{{ ansible_pkg_mgr }}"
-          os_virtualization_type: "{{ ansible_virtualization_type }}"
-          os_virtualization_role: "{{ ansible_virtualization_role }}"
-          os_selinux: "{{ ansible_selinux.status | default('disabled') if ansible_selinux is defined else 'undefined' }}"
+        filtered_vars:
+          "name": "{{ hostvars[inventory_hostname].name | default([]) }}"
+          "parent": "{{ hostvars[inventory_hostname].parent | default([]) }}"
+          "parentVApp": "{{ hostvars[inventory_hostname].parentVApp | default([]) }}"
+          "permission": "{{ hostvars[inventory_hostname].permission | default([]) }}"
+          "recentTask": "{{ hostvars[inventory_hostname].recentTask | default([]) }}"
+          "resourcePool": "{{ hostvars[inventory_hostname].resourcePool | default([]) }}"
+          "rootSnapshot": "{{ hostvars[inventory_hostname].rootSnapshot | default([]) }}"
+          "snapshot": "{{ hostvars[inventory_hostname].snapshot | default([]) }}"
+          "triggeredAlarmState": "{{ hostvars[inventory_hostname].triggeredAlarmState | default([]) }}"
+          "overallStatus": "{{ hostvars[inventory_hostname].overallStatus | default([]) }}"
+          "guest": "{{ hostvars[inventory_hostname].guest | default([]) }}"
+          "guestHeartbeatStatus": "{{ hostvars[inventory_hostname].guestHeartbeatStatus | default([]) }}"
+          "network": "{{ hostvars[inventory_hostname].network | default([]) }}"
+          "value": "{{ hostvars[inventory_hostname].value | default([]) }}"
+          "capability": "{{ hostvars[inventory_hostname].capability | default([]) }}"
+          "runtime": "{{ hostvars[inventory_hostname].runtime | default([]) }}"
+          "availableField": "{{ hostvars[inventory_hostname].availableField | default([]) }}"
+          "customValue": "{{ hostvars[inventory_hostname].customValue | default([]) }}"
+          "datastore": "{{ hostvars[inventory_hostname].datastore | default([]) }}"
+          "effectiveRole": "{{ hostvars[inventory_hostname].effectiveRole | default([]) }}"
+          "layout": "{{ hostvars[inventory_hostname].layout | default([]) }}"
+          "layoutEx": "{{ hostvars[inventory_hostname].layoutEx | default([]) }}"
+          "storage": "{{ hostvars[inventory_hostname].storage | default([]) }}"
+          "configIssue": "{{ hostvars[inventory_hostname].configIssue | default([]) }}"
+          "configStatus": "{{ hostvars[inventory_hostname].configStatus | default([]) }}"
+          "config": "{{ hostvars[inventory_hostname].config | default([]) }}"
+          "summary": "{{ hostvars[inventory_hostname].summary | default([]) }}"
+          
 
-    # Tareas específicas para Windows
-    - name: Procesar facts para Windows
-      when: ansible_system == "Win32NT"
-      set_fact:
-        ansible_facts:
-          os_type: "Windows"
-          os_family: "Windows"
-          os_distribution: "{{ ansible_distribution }}"
-          os_distribution_version: "{{ ansible_distribution_version }}"
-          os_architecture: "{{ ansible_architecture }}"
-          os_machine: "{{ ansible_machine }}"
-          os_windows_domain: "{{ ansible_domain }}"
-          os_windows_installdate: "{{ ansible_win_rm_certificate_expires | default('') }}"
-          os_powershell_version: "{{ ansible_powershell_version | default('') }}"
-
-    # Tareas comunes para todos los sistemas
-    - name: Registrar información básica para cualquier otro sistema
-      when: ansible_system != "Linux" and ansible_system != "Win32NT"
-      set_fact:
-        ansible_facts:
-          os_type: "{{ ansible_system }}"
-          os_family: "{{ ansible_os_family | default('Unknown') }}"
-          os_distribution: "{{ ansible_distribution | default('Unknown') }}"
-          os_distribution_version: "{{ ansible_distribution_version | default('Unknown') }}"
-          os_architecture: "{{ ansible_architecture | default('Unknown') }}"
-
-    - name: Mostrar resumen de información recopilada
-      debug:
-        msg: |
-          Sistema: {{ ansible_facts.os_type }}
-          Familia: {{ ansible_facts.os_family }}
-          Distribución: {{ ansible_facts.os_distribution }}
-          Versión: {{ ansible_facts.os_distribution_version }}
-          Arquitectura: {{ ansible_facts.os_architecture }}
-          {% if ansible_facts.os_type == "Linux" %}
-          Kernel: {{ ansible_facts.os_kernel }}
-          Gestor de paquetes: {{ ansible_facts.os_package_manager }}
-          Virtualización: {{ ansible_facts.os_virtualization_type }} ({{ ansible_facts.os_virtualization_role }})
-          SELinux: {{ ansible_facts.os_selinux }}
-          {% endif %}
-          {% if ansible_facts.os_type == "Windows" %}
-          Dominio: {{ ansible_facts.os_windows_domain }}
-          PowerShell: {{ ansible_facts.os_powershell_version }}
-          {% endif %}
+    # Tarea que concatena las variables del host recuperadas del inventario para
+    # añadir las nuevas variables que hemos averiguado.
+    - name: Actualizar la variable del host en AWX
+      awx.awx.host:
+        controller_host: "{{awx_awx_url}}"              # Indicamos la dirección de AWX.
+        controller_oauthtoken: "{{awx_api_token}}"      # Autorización de acceso a AWX mediante token.
+        inventory: "{{awx_inventory_id}}"               # Asignanos el inventario que vamos a modificar.
+        name: "{{ inventory_hostname }}"                # Seleccionamos el host al que le añadimos la nueva propiedad.
+        validate_certs: false                           # Omitimos comprobación de certificados por tenerlo autofirmado.
+        variables: "{{ filtered_vars}}"
+      delegate_to: localhost                            # Esta tarea se ejecuta en el servidor de ansible, no en los hosts.
+     
