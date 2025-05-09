@@ -1,6 +1,6 @@
 ---
 - name: Recopilar facts y actualizarlos en AWX
-  hosts: all
+  hosts: sv0071 
   gather_facts: yes
   vars:
     awx_inventory_id: 3
@@ -48,7 +48,7 @@
     # añadir las nuevas variables que hemos averiguado.
     - name: Actualizar la variable del host en AWX
       awx.awx.host:
-        controller_host: "{{awx_awx_url}}"              # Indicamos la dirección de AWX.
+        controller_host: "{{api_url}}"              # Indicamos la dirección de AWX.
         controller_oauthtoken: "{{awx_api_token}}"      # Autorización de acceso a AWX mediante token.
         inventory: "{{awx_inventory_id}}"               # Asignanos el inventario que vamos a modificar.
         name: "{{ inventory_hostname }}"                # Seleccionamos el host al que le añadimos la nueva propiedad.
