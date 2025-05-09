@@ -7,6 +7,13 @@
     ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1"
   tasks:
 
+    - name: Mostrar variables AWX para depuración
+      debug:
+        msg:
+          url: "{{ api_url | default('NO DEFINIDA') }}"
+          token: "{{ oauth_token | default('NO DEFINIDO') }}"
+      delegate_to: localhost
+
     # Tarea que recopila la información de los hosts que aparece en la
     # pestaña Facts del inventario en AWX.
     - name: Recopilar información del sistema
@@ -49,7 +56,7 @@
     - name: Actualizar la variable del host en AWX
       awx.awx.host:
         controller_host: "{{api_url}}"              # Indicamos la dirección de AWX.
-        controller_oauthtoken: "{{awx_api_token}}"      # Autorización de acceso a AWX mediante token.
+        controller_oauthtoken: "{{oauth_token}}"      # Autorización de acceso a AWX mediante token.
         inventory: "{{awx_inventory_id}}"               # Asignanos el inventario que vamos a modificar.
         name: "{{ inventory_hostname }}"                # Seleccionamos el host al que le añadimos la nueva propiedad.
         validate_certs: false                           # Omitimos comprobación de certificados por tenerlo autofirmado.
