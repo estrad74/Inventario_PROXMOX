@@ -1,6 +1,6 @@
 ---
 - name: Recopilar facts y actualizarlos en AWX
-  hosts: sv0071 
+  hosts: all
   gather_facts: yes
   vars:
     awx_inventory_id: 3
