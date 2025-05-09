@@ -3,15 +3,15 @@
   hosts: all
   gather_facts: yes
   vars:
-    awxinventory_id: 3
+    awx_inventory_id: 3
     ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1"
   tasks:
-  
+
     # Tarea que recopila la información de los hosts que aparece en la
     # pestaña Facts del inventario en AWX.
     - name: Recopilar información del sistema
       setup:
-      
+
     # Esta tarea obtiene una lista de las variables más relevantes del host.
     - name: Obtener las variables relevantes del host
       set_fact:
@@ -43,7 +43,6 @@
           "configStatus": "{{ hostvars[inventory_hostname].configStatus | default([]) }}"
           "config": "{{ hostvars[inventory_hostname].config | default([]) }}"
           "summary": "{{ hostvars[inventory_hostname].summary | default([]) }}"
-          
 
     # Tarea que concatena las variables del host recuperadas del inventario para
     # añadir las nuevas variables que hemos averiguado.
@@ -56,4 +55,3 @@
         validate_certs: false                           # Omitimos comprobación de certificados por tenerlo autofirmado.
         variables: "{{ filtered_vars}}"
       delegate_to: localhost                            # Esta tarea se ejecuta en el servidor de ansible, no en los hosts.
-     
