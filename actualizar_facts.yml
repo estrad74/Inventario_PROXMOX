@@ -10,8 +10,9 @@
     - name: Mostrar variables AWX para depuración
       debug:
         msg:
-          url: "{{ api_url | default('NO DEFINIDA') }}"
-          token: "{{ oauth_token | default('NO DEFINIDO') }}"
+          awx_url: "{{ api_url | default('NO DEFINIDA') }}"
+          api_token: "{{ oauth_token | default('NO DEFINIDO') }}"
+          inventory_id: "{{ awx_inventory_id | default('NO DEFINIDO') }}"
       delegate_to: localhost
 
     # Tarea que recopila la información de los hosts que aparece en la
