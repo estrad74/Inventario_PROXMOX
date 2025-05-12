@@ -137,9 +137,9 @@
 
     - name: Actualizar host en AWX con facts comprehensivos
       awx.awx.host:
-        controller_host: "{{ lookup('env', 'AWX_API_URL') }}"
-        controller_oauthtoken: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
-        inventory: "{{ lookup('env', 'AWX_INVENTORY_ID') }}"
+        controller_host: "{{ awx_url ) }}"
+        controller_oauthtoken: "{{ awx_token }}"
+        inventory: "{{ awx_inventory_id }}"
         name: "{{ inventory_hostname }}"
         validate_certs: false
         variables:
