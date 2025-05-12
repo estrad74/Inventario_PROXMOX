@@ -12,8 +12,8 @@
     - name: Mostrar variables AWX para depuración
       debug:
         msg:
-          awx_url: "{{ url | default('NO DEFINIDA') }}"
-          awx_token: "{{ token | default('NO DEFINIDO') }}"
+          awx_url: "{{ awx_url | default('NO DEFINIDA') }}"
+          awx_token: "{{ awx_token | default('NO DEFINIDO') }}"
           awx_inventory_id: "{{ awx_inventory_id | default('NO DEFINIDO') }}"
       delegate_to: localhost
 
