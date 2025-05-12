@@ -137,7 +137,7 @@
 
     - name: Actualizar host en AWX con facts comprehensivos
       awx.awx.host:
-        controller_host: "{{ awx_url ) }}"
+        controller_host: "{{ awx_url }}"
         controller_oauthtoken: "{{ awx_token }}"
         inventory: "{{ awx_inventory_id }}"
         name: "{{ inventory_hostname }}"
