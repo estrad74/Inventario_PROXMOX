@@ -3,9 +3,8 @@
   hosts: all
   gather_facts: yes
   vars:
-    awx_inventory_id: 3
-    awx_url: "{{ lookup('env', 'api_url') }}"
-    awx_token: "{{ lookup('env', 'oauth_token') }}"
+    awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
+    awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
     ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1"
   tasks:
 
@@ -59,7 +58,7 @@
     - name: Actualizar la variable del host en AWX
       awx.awx.host:
         controller_host: "{{awx_url}}"              # Indicamos la dirección de AWX.
-        controller_oauthtoken: "{{awx__token}}"      # Autorización de acceso a AWX mediante token.
+        controller_oauthtoken: "{{awx_token}}"      # Autorización de acceso a AWX mediante token.
         inventory: "{{awx_inventory_id}}"               # Asignanos el inventario que vamos a modificar.
         name: "{{ inventory_hostname }}"                # Seleccionamos el host al que le añadimos la nueva propiedad.
         validate_certs: false                           # Omitimos comprobación de certificados por tenerlo autofirmado.
