@@ -1,66 +1,118 @@
 ---
-- name: Recopilar facts y actualizarlos en AWX
+# actualizar_standard_facts.yml
+- name: Recopilar facts estándar y actualizarlos en AWX
   hosts: all
   gather_facts: yes
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
     ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1"
+
   tasks:
 
-    - name: Mostrar variables AWX para depuración
-      debug:
-        msg:
-          awx_url: "{{ awx_url | default('NO DEFINIDA') }}"
-          awx_token: "{{ awx_token | default('NO DEFINIDO') }}"
-          awx_inventory_id: "{{ awx_inventory_id | default('NO DEFINIDO') }}"
+    # Obtener los datos actuales del host en AWX
+    - name: Recuperar datos actuales del host en AWX
+      awx.awx.host_info:
+        controller_host: "{{ awx_url }}"
+        controller_oauthtoken: "{{ awx_token }}"
+        inventory: "{{ awx_inventory_id }}"
+        name: "{{ inventory_hostname }}"
+        validate_certs: false
+      register: host_info
       delegate_to: localhost
+      ignore_errors: yes
 
-    # Tarea que recopila la información de los hosts que aparece en la
-    # pestaña Facts del inventario en AWX.
-    - name: Recopilar información del sistema
-      setup:
+    - name: Depurar información recuperada del host
+      debug:
+        var: host_info
+        verbosity: 2
 
-    # Esta tarea obtiene una lista de las variables más relevantes del host.
-    - name: Obtener las variables relevantes del host
+    # Extraer las variables actuales del host (si existen)
+    - name: Establecer variables originales del host
       set_fact:
-        filtered_vars:
-          "name": "{{ hostvars[inventory_hostname].name | default([]) }}"
-          "parent": "{{ hostvars[inventory_hostname].parent | default([]) }}"
-          "parentVApp": "{{ hostvars[inventory_hostname].parentVApp | default([]) }}"
-          "permission": "{{ hostvars[inventory_hostname].permission | default([]) }}"
-          "recentTask": "{{ hostvars[inventory_hostname].recentTask | default([]) }}"
-          "resourcePool": "{{ hostvars[inventory_hostname].resourcePool | default([]) }}"
-          "rootSnapshot": "{{ hostvars[inventory_hostname].rootSnapshot | default([]) }}"
-          "snapshot": "{{ hostvars[inventory_hostname].snapshot | default([]) }}"
-          "triggeredAlarmState": "{{ hostvars[inventory_hostname].triggeredAlarmState | default([]) }}"
-          "overallStatus": "{{ hostvars[inventory_hostname].overallStatus | default([]) }}"
-          "guest": "{{ hostvars[inventory_hostname].guest | default([]) }}"
-          "guestHeartbeatStatus": "{{ hostvars[inventory_hostname].guestHeartbeatStatus | default([]) }}"
-          "network": "{{ hostvars[inventory_hostname].network | default([]) }}"
-          "value": "{{ hostvars[inventory_hostname].value | default([]) }}"
-          "capability": "{{ hostvars[inventory_hostname].capability | default([]) }}"
-          "runtime": "{{ hostvars[inventory_hostname].runtime | default([]) }}"
-          "availableField": "{{ hostvars[inventory_hostname].availableField | default([]) }}"
-          "customValue": "{{ hostvars[inventory_hostname].customValue | default([]) }}"
-          "datastore": "{{ hostvars[inventory_hostname].datastore | default([]) }}"
-          "effectiveRole": "{{ hostvars[inventory_hostname].effectiveRole | default([]) }}"
-          "layout": "{{ hostvars[inventory_hostname].layout | default([]) }}"
-          "layoutEx": "{{ hostvars[inventory_hostname].layoutEx | default([]) }}"
-          "storage": "{{ hostvars[inventory_hostname].storage | default([]) }}"
-          "configIssue": "{{ hostvars[inventory_hostname].configIssue | default([]) }}"
-          "configStatus": "{{ hostvars[inventory_hostname].configStatus | default([]) }}"
-          "config": "{{ hostvars[inventory_hostname].config | default([]) }}"
-          "summary": "{{ hostvars[inventory_hostname].summary | default([]) }}"
+        original_host_vars: "{{ host_info.hosts[0].variables | from_json if host_info.hosts is defined and host_info.hosts | length > 0 and host_info.hosts[0].variables is defined and host_info.hosts[0].variables != '' else {} }}"
+      ignore_errors: yes
 
-    # Tarea que concatena las variables del host recuperadas del inventario para
-    # añadir las nuevas variables que hemos averiguado.
+    - name: Depurar variables originales
+      debug:
+        var: original_host_vars
+        verbosity: 1
+
+    # Recopilar facts estándar relevantes
+    - name: Obtener facts estándar relevantes
+      set_fact:
+        standard_facts:
+          # Información del sistema
+          system_info:
+            hostname: "{{ ansible_hostname | default('') }}"
+            fqdn: "{{ ansible_fqdn | default('') }}"
+            domain: "{{ ansible_domain | default('') }}"
+            distribution: "{{ ansible_distribution | default('') }}"
+            distribution_version: "{{ ansible_distribution_version | default('') }}"
+            distribution_release: "{{ ansible_distribution_release | default('') }}"
+            os_family: "{{ ansible_os_family | default('') }}"
+            system: "{{ ansible_system | default('') }}"
+            kernel: "{{ ansible_kernel | default('') }}"
+            architecture: "{{ ansible_architecture | default('') }}"
+            virtualization_type: "{{ ansible_virtualization_type | default('') }}"
+            virtualization_role: "{{ ansible_virtualization_role | default('') }}"
+            service_manager: "{{ ansible_service_mgr | default('') }}"
+            package_manager: "{{ ansible_pkg_mgr | default('') }}"
+            python_version: "{{ ansible_python_version | default('') }}"
+          # Hardware info
+          hardware_info:
+            processor_count: "{{ ansible_processor_count | default('') }}"
+            processor_cores: "{{ ansible_processor_cores | default('') }}"
+            processor_threads_per_core: "{{ ansible_processor_threads_per_core | default('') }}"
+            processor_vcpus: "{{ ansible_processor_vcpus | default('') }}"
+            memory_total_mb: "{{ ansible_memtotal_mb | default('') }}"
+            memory_free_mb: "{{ ansible_memfree_mb | default('') }}"
+            swap_total_mb: "{{ ansible_swaptotal_mb | default('') }}"
+            swap_free_mb: "{{ ansible_swapfree_mb | default('') }}"
+            product_name: "{{ ansible_product_name | default('') }}"
+            product_serial: "{{ ansible_product_serial | default('') }}"
+            product_uuid: "{{ ansible_product_uuid | default('') }}"
+            product_version: "{{ ansible_product_version | default('') }}"
+          # Red
+          network_info:
+            all_ipv4_addresses: "{{ ansible_all_ipv4_addresses | default([]) }}"
+            default_ipv4_address: "{{ ansible_default_ipv4.address | default('') }}"
+            default_ipv4_interface: "{{ ansible_default_ipv4.interface | default('') }}"
+            default_ipv4_gateway: "{{ ansible_default_ipv4.gateway | default('') }}"
+            interfaces: "{{ ansible_interfaces | default([]) }}"
+          # Disco
+          disk_info:
+            mounts_count: "{{ ansible_mounts | length | default(0) }}"
+            devices_count: "{{ ansible_devices | length | default(0) }}"
+          # Fecha de actualización
+          last_update: "{{ lookup('pipe', 'date \"+%Y-%m-%d %H:%M:%S\"') }}"
+
+    - name: Depurar facts estándar
+      debug:
+        var: standard_facts
+        verbosity: 1
+
+    # Combinar las variables originales con los nuevos facts
+    - name: Combinar variables originales con facts estándar
+      set_fact:
+        combined_vars: "{{ original_host_vars | combine({'ansible_facts': standard_facts}) }}"
+
+    - name: Depurar variables combinadas
+      debug:
+        var: combined_vars
+        verbosity: 1
+
+    # Actualizar la variable del host en AWX
     - name: Actualizar la variable del host en AWX
       awx.awx.host:
-        controller_host: "{{awx_url}}"              # Indicamos la dirección de AWX.
-        controller_oauthtoken: "{{awx_token}}"      # Autorización de acceso a AWX mediante token.
-        inventory: "{{awx_inventory_id}}"               # Asignanos el inventario que vamos a modificar.
-        name: "{{ inventory_hostname }}"                # Seleccionamos el host al que le añadimos la nueva propiedad.
-        validate_certs: false                           # Omitimos comprobación de certificados por tenerlo autofirmado.
-        variables: "{{ filtered_vars}}"
-      delegate_to: localhost                            # Esta tarea se ejecuta en el servidor de ansible, no en los hosts.
+        controller_host: "{{ awx_url }}"
+        controller_oauthtoken: "{{ awx_token }}"
+        inventory: "{{ awx_inventory_id }}"
+        name: "{{ inventory_hostname }}"
+        validate_certs: false
+        variables: "{{ combined_vars | to_json }}"
+      delegate_to: localhost
+
+    - name: Confirmar actualización
+      debug:
+        msg: "Las propiedades del host '{{ inventory_hostname }}' han sido actualizadas con los facts estándar."
