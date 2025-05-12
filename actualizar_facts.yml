@@ -10,34 +10,6 @@
 
   tasks:
 
-    # Obtener los datos actuales del host en AWX
-    - name: Recuperar datos actuales del host en AWX
-      awx.awx.host_info:
-        controller_host: "{{ awx_url }}"
-        controller_oauthtoken: "{{ awx_token }}"
-        inventory: "{{ awx_inventory_id }}"
-        name: "{{ inventory_hostname }}"
-        validate_certs: false
-      register: host_info
-      delegate_to: localhost
-      ignore_errors: yes
-
-    - name: Depurar información recuperada del host
-      debug:
-        var: host_info
-        verbosity: 2
-
-    # Extraer las variables actuales del host (si existen)
-    - name: Establecer variables originales del host
-      set_fact:
-        original_host_vars: "{{ host_info.hosts[0].variables | from_json if host_info.hosts is defined and host_info.hosts | length > 0 and host_info.hosts[0].variables is defined and host_info.hosts[0].variables != '' else {} }}"
-      ignore_errors: yes
-
-    - name: Depurar variables originales
-      debug:
-        var: original_host_vars
-        verbosity: 1
-
     # Recopilar facts estándar relevantes
     - name: Obtener facts estándar relevantes
       set_fact:
@@ -84,23 +56,9 @@
           disk_info:
             mounts_count: "{{ ansible_mounts | length | default(0) }}"
             devices_count: "{{ ansible_devices | length | default(0) }}"
-          # Fecha de actualización
-          last_update: "{{ lookup('pipe', 'date \"+%Y-%m-%d %H:%M:%S\"') }}"
-
-    - name: Depurar facts estándar
-      debug:
-        var: standard_facts
-        verbosity: 1
-
-    # Combinar las variables originales con los nuevos facts
-    - name: Combinar variables originales con facts estándar
-      set_fact:
-        combined_vars: "{{ original_host_vars | combine({'ansible_facts': standard_facts}) }}"
-
-    - name: Depurar variables combinadas
-      debug:
-        var: combined_vars
-        verbosity: 1
+          # Información adicional
+          extra_info:
+            collection_timestamp: "{{ lookup('pipe', 'date \"+%Y-%m-%d %H:%M:%S\"') }}"
 
     # Actualizar la variable del host en AWX
     - name: Actualizar la variable del host en AWX
@@ -110,9 +68,6 @@
         inventory: "{{ awx_inventory_id }}"
         name: "{{ inventory_hostname }}"
         validate_certs: false
-        variables: "{{ combined_vars | to_json }}"
+        variables:
+          ansible_facts: "{{ standard_facts }}"
       delegate_to: localhost
-
-    - name: Confirmar actualización
-      debug:
-        msg: "Las propiedades del host '{{ inventory_hostname }}' han sido actualizadas con los facts estándar."
