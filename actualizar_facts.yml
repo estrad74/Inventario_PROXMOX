@@ -8,7 +8,7 @@
 
   tasks:
 
-   - name: Recopilar facts estándar del sistema
+    - name: Recopilar facts estándar del sistema
       setup:
         gather_subset:
           - hardware
