@@ -1,0 +1,152 @@
+---
+- name: Recopilar facts comprehensivos
+  hosts: all
+  vars:
+    awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
+    awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
+    ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1"
+
+  tasks:
+    - name: Recopilar información comprehensiva del sistema
+      setup:
+        gather_subset:
+          - all  # Recopila absolutamente todos los facts disponibles
+          - '!min'  # Excluye solo los facts mínimos
+      register: comprehensive_facts
+
+    - name: Recopilar información adicional con comandos ad-hoc
+      block:
+        - name: Recopilar información de paquetes instalados
+          package_facts:
+            manager: auto
+
+        - name: Recopilar información de servicios
+          service_facts:
+
+        - name: Recopilar información de usuarios
+          getent:
+            database: passwd
+
+        - name: Recopilar información de grupos
+          getent:
+            database: group
+
+    - name: Preparar facts comprehensivos para AWX
+      set_fact:
+        comprehensive_system_facts:
+          # Información del sistema base
+          system_core:
+            hostname: "{{ ansible_hostname }}"
+            fqdn: "{{ ansible_fqdn }}"
+            domain: "{{ ansible_domain }}"
+            distribution: "{{ ansible_distribution }}"
+            distribution_version: "{{ ansible_distribution_version }}"
+            distribution_major_version: "{{ ansible_distribution_major_version }}"
+            distribution_release: "{{ ansible_distribution_release }}"
+            os_family: "{{ ansible_os_family }}"
+            system: "{{ ansible_system }}"
+            kernel: "{{ ansible_kernel }}"
+            kernel_version: "{{ ansible_kernel_version }}"
+            architecture: "{{ ansible_architecture }}"
+            userspace_architecture: "{{ ansible_userspace_architecture }}"
+            userspace_bits: "{{ ansible_userspace_bits }}"
+            python_version: "{{ ansible_python_version }}"
+            selinux_status: "{{ ansible_selinux.status | default('Not configured') }}"
+            firewall_status: "{{ ansible_firewall.status | default('Unknown') }}"
+
+          # Información de hardware detallada
+          hardware_detailed:
+            processor:
+              count: "{{ ansible_processor_count }}"
+              cores: "{{ ansible_processor_cores }}"
+              threads_per_core: "{{ ansible_processor_threads_per_core }}"
+              vcpus: "{{ ansible_processor_vcpus }}"
+              model: "{{ ansible_processor[1] | default('Unknown') }}"
+              architecture: "{{ ansible_architecture }}"
+
+            memory:
+              total_mb: "{{ ansible_memtotal_mb }}"
+              free_mb: "{{ ansible_memfree_mb }}"
+              swap_total_mb: "{{ ansible_swaptotal_mb }}"
+              swap_free_mb: "{{ ansible_swapfree_mb }}"
+
+            storage:
+              mounts: "{{ ansible_mounts }}"
+              devices: "{{ ansible_devices }}"
+              logical_volumes: "{{ ansible_lvm.lvs | default([]) }}"
+              volume_groups: "{{ ansible_lvm.vgs | default([]) }}"
+
+            product_info:
+              name: "{{ ansible_product_name }}"
+              serial: "{{ ansible_product_serial }}"
+              uuid: "{{ ansible_product_uuid }}"
+              version: "{{ ansible_product_version }}"
+
+          # Información de red extendida
+          network_extended:
+            interfaces: "{{ ansible_interfaces }}"
+            all_ipv4: "{{ ansible_all_ipv4_addresses }}"
+            all_ipv6: "{{ ansible_all_ipv6_addresses }}"
+            default_ipv4:
+              address: "{{ ansible_default_ipv4.address }}"
+              interface: "{{ ansible_default_ipv4.interface }}"
+              gateway: "{{ ansible_default_ipv4.gateway }}"
+            dns:
+              nameservers: "{{ ansible_dns.nameservers | default([]) }}"
+              search: "{{ ansible_dns.search | default([]) }}"
+            routing_table: "{{ ansible_routing_table | default({}) }}"
+
+          # Información de virtualización
+          virtualization:
+            type: "{{ ansible_virtualization_type }}"
+            role: "{{ ansible_virtualization_role }}"
+            system: "{{ ansible_system_vendor }}"
+            bios_version: "{{ ansible_bios_version }}"
+            bios_date: "{{ ansible_bios_date }}"
+
+          # Información de hardware adicional
+          hardware_extra:
+            cpu_features: "{{ ansible_processor_options | default([]) }}"
+            cpu_flags: "{{ ansible_processor_flags | default([]) }}"
+            numa_nodes: "{{ ansible_processor_numnodes | default(0) }}"
+
+          # Información de sistema de archivos
+          filesystem:
+            mounts_full: "{{ ansible_mounts }}"
+            filesystems_types: "{{ ansible_mounts | map(attribute='fstype') | unique | list }}"
+            mount_points: "{{ ansible_mounts | map(attribute='mount') | list }}"
+
+          # Información de usuarios y grupos
+          users_groups:
+            users: "{{ ansible_facts.getent_passwd | default({}) }}"
+            groups: "{{ ansible_facts.getent_group | default({}) }}"
+
+          # Información de paquetes
+          packages:
+            installed: "{{ ansible_facts.packages | default({}) }}"
+            package_manager: "{{ ansible_pkg_mgr }}"
+
+          # Información de servicios
+          services:
+            all_services: "{{ ansible_facts.services | default({}) }}"
+
+          # Información adicional
+          extra_info:
+            collection_timestamp: "{{ lookup('pipe', 'date \"+%Y-%m-%d %H:%M:%S\"') }}"
+            collection_host: "{{ inventory_hostname }}"
+
+    - name: Actualizar host en AWX con facts comprehensivos
+      awx.awx.host:
+        controller_host: "{{ awx_url }}"
+        controller_oauthtoken: "{{ awx_token }}"
+        inventory: "{{ awx_inventory_id }}"
+        name: "{{ inventory_hostname }}"
+        validate_certs: false
+        variables:
+          ansible_facts: "{{ comprehensive_system_facts }}"
+      delegate_to: localhost
+
+    - name: Confirmar actualización de facts comprehensivos
+      debug:
+        msg: "Facts comprehensivos del host '{{ inventory_hostname }}' han sido actualizados en AWX."
+        verbosity: 1
