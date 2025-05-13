@@ -1,7 +1,6 @@
 ---
-- name: Recopilar facts comprehensivos
+- name: Recopilar facts
   hosts: all
-  gather_facts: no
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
@@ -9,39 +8,52 @@
 
   tasks:
 
-    - name: Recopilar todos los facts (para acceso a paquetes, etc.)
+   - name: Recopilar facts estándar del sistema
       setup:
         gather_subset:
-          - all
+          - hardware
+          - network
+          - virtual
+          - distribution
 
-    - name: Filtrar versiones instaladas de Python desde los paquetes
+    - name: Recopilar información de paquetes instalados
+      package_facts:
+        manager: auto
+
+    - name: Extraer versiones de Python instaladas
       set_fact:
         python_versions_detected: >-
           {{
-            ansible_facts.packages.keys()
-            | select('match', '^python[0-9.]*$')
+            ansible_facts.packages
+            | dict2items
+            | selectattr('key', 'match', '^python[0-9.]*$')
+            | map(attribute='key')
             | list
           }}
 
-    - name: Filtrar versiones instaladas de Java desde los paquetes
+    - name: Extraer versiones de Java instaladas
       set_fact:
         java_versions_detected: >-
           {{
-            ansible_facts.packages.keys()
-            | select('search', 'openjdk|java')
+            ansible_facts.packages
+            | dict2items
+            | selectattr('key', 'search', 'openjdk|java')
+            | map(attribute='key')
             | list
           }}
 
-    - name: Detectar versión de Tomcat desde los paquetes
+    - name: Extraer versiones de Tomcat instaladas
       set_fact:
         tomcat_versions_detected: >-
           {{
-            ansible_facts.packages.keys()
-            | select('search', 'tomcat')
+            ansible_facts.packages
+            | dict2items
+            | selectattr('key', 'search', 'tomcat')
+            | map(attribute='key')
             | list
           }}
 
-    - name: Preparar facts relevantes para AWX
+    - name: Construir diccionario con facts filtrados
       set_fact:
         filtered_system_facts:
           ansible_connection_name: "{{ ansible_host }}"
