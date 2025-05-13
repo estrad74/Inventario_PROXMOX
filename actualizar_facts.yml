@@ -23,20 +23,16 @@
     - name: Extraer versiones de Python instaladas
       set_fact:
         python_versions_detected: >-
-          {{
-            ansible_facts.packages
-            | dict2items
-            | selectattr('key', 'match', '^python[0-9.]*$')
-            | map(
-                attribute='item',
-                default={
-                  'name': item.key,
-                  'version': item.value[0].version
-                }
-              )
-            | list
-          }}
-
+        {{
+          ansible_facts.packages
+          | dict2items
+          | selectattr('key', 'match', '^python[0-9.]*$')
+          | map(attribute='value')
+          | sum(start=[])
+          | map('combine', {'name': item.source.key}, {'version': item.version})
+          | list
+        }}
+      
     - name: Extraer versiones de Java instaladas
       set_fact:
         java_versions_detected: >-
@@ -44,13 +40,9 @@
             ansible_facts.packages
             | dict2items
             | selectattr('key', 'search', 'openjdk|java')
-            | map(
-                attribute='item',
-                default={
-                  'name': item.key,
-                  'version': item.value[0].version
-                }
-              )
+            | map(attribute='value')
+            | sum(start=[])
+            | map('combine', {'name': item.source.key}, {'version': item.version})
             | list
           }}
 
@@ -61,13 +53,9 @@
             ansible_facts.packages
             | dict2items
             | selectattr('key', 'search', 'tomcat')
-            | map(
-                attribute='item',
-                default={
-                  'name': item.key,
-                  'version': item.value[0].version
-                }
-              )
+            | map(attribute='value')
+            | sum(start=[])
+            | map('combine', {'name': item.source.key}, {'version': item.version})
             | list
           }}
 
