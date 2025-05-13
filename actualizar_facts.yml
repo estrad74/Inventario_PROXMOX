@@ -27,7 +27,13 @@
             ansible_facts.packages
             | dict2items
             | selectattr('key', 'match', '^python[0-9.]*$')
-            | map(attribute='key')
+            | map(
+                attribute='item',
+                default={
+                  'name': item.key,
+                  'version': item.value[0].version
+                }
+              )
             | list
           }}
 
@@ -38,7 +44,13 @@
             ansible_facts.packages
             | dict2items
             | selectattr('key', 'search', 'openjdk|java')
-            | map(attribute='key')
+            | map(
+                attribute='item',
+                default={
+                  'name': item.key,
+                  'version': item.value[0].version
+                }
+              )
             | list
           }}
 
@@ -49,14 +61,19 @@
             ansible_facts.packages
             | dict2items
             | selectattr('key', 'search', 'tomcat')
-            | map(attribute='key')
+            | map(
+                attribute='item',
+                default={
+                  'name': item.key,
+                  'version': item.value[0].version
+                }
+              )
             | list
           }}
 
     - name: Construir diccionario con facts filtrados
       set_fact:
         filtered_system_facts:
-          ansible_connection_name: "{{ ansible_host }}"
           hostname: "{{ ansible_hostname }}"
           fqdn: "{{ ansible_fqdn | default('') }}"
           ip: "{{ ansible_default_ipv4.address | default('') }}"
@@ -65,6 +82,7 @@
             version: "{{ ansible_distribution_version }}"
             release: "{{ ansible_distribution_release | default('') }}"
             major_version: "{{ ansible_distribution_major_version | default('') }}"
+            minor_version: "{{ ansible_distribution_minor_version | default('') }}"
           kernel: "{{ ansible_kernel }}"
           architecture: "{{ ansible_architecture }}"
           memory_mb: "{{ ansible_memtotal_mb }}"
@@ -82,5 +100,10 @@
         name: "{{ inventory_hostname }}"
         validate_certs: false
         variables:
+          hostname: (ansible_host | default("")) | regex_replace('---.*$', '')
+          original_name: (ansible_host | default(""))
+          config_name: (ansible_host | default("")) | regex_replace('---.*$', '')
+          alternate_name: (ansible_host | default("")) | regex_replace('^.*---', '')
+          ansible_host: (ansible_host | default("")) | regex_replace('---.*$', '')
           ansible_facts: "{{ filtered_system_facts }}"
       delegate_to: localhost
