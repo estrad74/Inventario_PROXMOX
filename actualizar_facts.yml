@@ -29,7 +29,16 @@
             | selectattr('key', 'match', '^python[0-9.]*$')
             | map(attribute='value')
             | sum(start=[])
-            | map('combine', {'name': item.source.key}, {'version': item.version})
+            | map(attribute='source.key')
+            | zip(
+                ansible_facts.packages
+                | dict2items
+                | selectattr('key', 'match', '^python[0-9.]*$')
+                | map(attribute='value')
+                | sum(start=[])
+                | map(attribute='version')
+              )
+            | map('dict', ['name', 'version'])
             | list
           }}
       
@@ -42,10 +51,19 @@
             | selectattr('key', 'search', 'openjdk|java')
             | map(attribute='value')
             | sum(start=[])
-            | map('combine', {'name': item.source.key}, {'version': item.version})
+            | map(attribute='source.key')
+            | zip(
+                ansible_facts.packages
+                | dict2items
+                | selectattr('key', 'search', 'openjdk|java')
+                | map(attribute='value')
+                | sum(start=[])
+                | map(attribute='version')
+              )
+            | map('dict', ['name', 'version'])
             | list
           }}
-
+          
     - name: Extraer versiones de Tomcat instaladas
       set_fact:
         tomcat_versions_detected: >-
@@ -55,7 +73,16 @@
             | selectattr('key', 'search', 'tomcat')
             | map(attribute='value')
             | sum(start=[])
-            | map('combine', {'name': item.source.key}, {'version': item.version})
+            | map(attribute='source.key')
+            | zip(
+                ansible_facts.packages
+                | dict2items
+                | selectattr('key', 'search', 'tomcat')
+                | map(attribute='value')
+                | sum(start=[])
+                | map(attribute='version')
+              )
+            | map('dict', ['name', 'version'])
             | list
           }}
 
