@@ -62,7 +62,7 @@
           java_versions: "{{ java_versions_detected }}"
           tomcat_versions: "{{ tomcat_versions_detected }}"
           collected_at: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }}"
-
+          
     - name: Actualizar host en AWX con facts filtrados
       awx.awx.host:
         controller_host: "{{ awx_url }}"
@@ -71,10 +71,10 @@
         name: "{{ inventory_hostname }}"
         validate_certs: false
         variables:
-          hostname: (ansible_host | default("")) | regex_replace('---.*$', '')
-          original_name: (ansible_host | default(""))
-          config_name: (ansible_host | default("")) | regex_replace('---.*$', '')
-          alternate_name: (ansible_host | default("")) | regex_replace('^.*---', '')
-          ansible_host: (ansible_host | default("")) | regex_replace('---.*$', '')
+          hostname: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
+          original_name: "{{ ansible_host | default('') }}"
+          config_name: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
+          alternate_name: "{{ (ansible_host | default('')) | regex_replace('^.*---', '') }}"
+          ansible_host: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
           ansible_facts: "{{ filtered_system_facts }}"
       delegate_to: localhost
