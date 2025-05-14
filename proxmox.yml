@@ -8,7 +8,8 @@ want_facts: true
 qemu_extended_statuses: true
 use_extra_vars: true
 compose:
-  name: (proxmox_name | default(""))
+  original_name: (proxmox_name | default(""))
+  name: (proxmox_name | default("")) | regex_replace('^.*---', '') 
   hostname: (proxmox_name | default("")) | regex_replace('^.*---', '')
   ansible_host: (proxmox_name | default("")) | regex_replace('---.*$', '')
 keyed_groups:
