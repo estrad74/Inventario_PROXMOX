@@ -12,8 +12,6 @@ compose:
   name: (proxmox_name | default("")) | regex_replace('^.*---', '') 
   hostname: (proxmox_name | default("")) | regex_replace('^.*---', '')
   ansible_host: (proxmox_name | default("")) | regex_replace('---.*$', '')
-hostnames:
-  - name  
 keyed_groups:
   - prefix: os
     key: proxmox_ostype

@@ -145,6 +145,7 @@
         variables:
           original_name: " {{ original_name }}"
           name: "{{ name }}"
+          new_name: "{{ hostname }}"
           hostname: "{{ hostname }}"
           ansible_host: "{{ ansible_host }}"
           ansible_facts: "{{ comprehensive_system_facts }}"
