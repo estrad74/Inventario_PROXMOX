@@ -70,7 +70,7 @@
         new_name: "{{ hostname }}"
         validate_certs: false
         variables:
-          original_name: " {{ original_name }}"
+          original_name: "{{ original_name }}"
           name: "{{ name }}"
           hostname: "{{ hostname }}"
           ansible_host: "{{ ansible_host }}"
