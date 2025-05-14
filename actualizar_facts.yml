@@ -67,9 +67,9 @@
       set_fact:
         host_hostname: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
         host_original_name: "{{ ansible_host | default('') }}"
-        host_config_name: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
+        host_config_name: "{{ (ansible_host | default('')) | regex_replace('---.*', '') }}"
         host_alternate_name: "{{ (ansible_host | default('')) | regex_replace('^.*---', '') }}"
-        host_ansible_host: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"    
+        host_ansible_host: "{{ (ansible_host | default('')) | regex_replace('---.*', '') }}"    
     
     - name: Actualizar host en AWX con facts filtrados
       awx.awx.host:
