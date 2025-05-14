@@ -52,8 +52,6 @@
             name: "{{ ansible_distribution }}"
             version: "{{ ansible_distribution_version }}"
             release: "{{ ansible_distribution_release | default('') }}"
-            major_version: "{{ ansible_distribution_major_version | default('') }}"
-            minor_version: "{{ ansible_distribution_minor_version | default('') }}"
           kernel: "{{ ansible_kernel }}"
           architecture: "{{ ansible_architecture }}"
           memory_mb: "{{ ansible_memtotal_mb }}"
@@ -69,11 +67,11 @@
         controller_oauthtoken: "{{ awx_token }}"
         inventory: "{{ awx_inventory_id }}"
         name: "{{ inventory_hostname }}"
+        new_name: "{{ hostname }}"
         validate_certs: false
         variables:
           original_name: " {{ original_name }}"
           name: "{{ name }}"
-          new_name: "{{ hostname }}"
           hostname: "{{ hostname }}"
           ansible_host: "{{ ansible_host }}"
           ansible_facts: "{{ filtered_system_facts }}"
