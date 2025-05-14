@@ -63,6 +63,14 @@
           tomcat_versions: "{{ tomcat_versions_detected }}"
           collected_at: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }}"
           
+    - name: Preparar variables para actualizar host en AWX
+      set_fact:
+        host_hostname: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
+        host_original_name: "{{ ansible_host | default('') }}"
+        host_config_name: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
+        host_alternate_name: "{{ (ansible_host | default('')) | regex_replace('^.*---', '') }}"
+        host_ansible_host: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
+        
     - name: Actualizar host en AWX con facts filtrados
       awx.awx.host:
         controller_host: "{{ awx_url }}"
@@ -71,10 +79,10 @@
         name: "{{ inventory_hostname }}"
         validate_certs: false
         variables:
-          hostname: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
-          original_name: "{{ ansible_host | default('') }}"
-          config_name: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
-          alternate_name: "{{ (ansible_host | default('')) | regex_replace('^.*---', '') }}"
-          ansible_host: "{{ (ansible_host | default('')) | regex_replace('---.*, '') }}"
+          hostname: "{{ host_hostname }}"
+          original_name: "{{ host_original_name }}"
+          config_name: "{{ host_config_name }}"
+          alternate_name: "{{ host_alternate_name }}"
+          ansible_host: "{{ host_ansible_host }}"
           ansible_facts: "{{ filtered_system_facts }}"
       delegate_to: localhost
