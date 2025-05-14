@@ -22,69 +22,23 @@
 
     - name: Extraer versiones de Python instaladas
       set_fact:
-        python_versions_detected: >-
-          {{
-            ansible_facts.packages
-            | dict2items
-            | selectattr('key', 'match', '^python[0-9.]*$')
-            | map(attribute='value')
-            | sum(start=[])
-            | map(attribute='source.key')
-            | zip(
-                ansible_facts.packages
-                | dict2items
-                | selectattr('key', 'match', '^python[0-9.]*$')
-                | map(attribute='value')
-                | sum(start=[])
-                | map(attribute='version')
-              )
-            | map('dict', ['name', 'version'])
-            | list
-          }}
+        python_versions_detected: "{{ python_versions_list | default([]) }}"
+      vars:
+        python_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'match', '^python[0-9.]*
       
     - name: Extraer versiones de Java instaladas
       set_fact:
-        java_versions_detected: >-
-          {{
-            ansible_facts.packages
-            | dict2items
-            | selectattr('key', 'search', 'openjdk|java')
-            | map(attribute='value')
-            | sum(start=[])
-            | map(attribute='source.key')
-            | zip(
-                ansible_facts.packages
-                | dict2items
-                | selectattr('key', 'search', 'openjdk|java')
-                | map(attribute='value')
-                | sum(start=[])
-                | map(attribute='version')
-              )
-            | map('dict', ['name', 'version'])
-            | list
-          }}
-          
+        java_versions_detected: "{{ java_versions_list | default([]) }}"
+      vars:
+        java_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'search', 'openjdk|java') | list }}"
+        java_versions_list: "{{ java_packages | json_query('[].value[*].{name: key, version: version}') | list }}"
+
     - name: Extraer versiones de Tomcat instaladas
       set_fact:
-        tomcat_versions_detected: >-
-          {{
-            ansible_facts.packages
-            | dict2items
-            | selectattr('key', 'search', 'tomcat')
-            | map(attribute='value')
-            | sum(start=[])
-            | map(attribute='source.key')
-            | zip(
-                ansible_facts.packages
-                | dict2items
-                | selectattr('key', 'search', 'tomcat')
-                | map(attribute='value')
-                | sum(start=[])
-                | map(attribute='version')
-              )
-            | map('dict', ['name', 'version'])
-            | list
-          }}
+        tomcat_versions_detected: "{{ tomcat_versions_list | default([]) }}"
+      vars:
+        tomcat_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'search', 'tomcat') | list }}"
+        tomcat_versions_list: "{{ tomcat_packages | json_query('[].value[*].{name: key, version: version}') | list }}"
 
     - name: Construir diccionario con facts filtrados
       set_fact:
