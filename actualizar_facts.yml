@@ -4,7 +4,7 @@
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
-    ansible_ssh_extra_args: "-oKexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -oHostKeyAlgorithms=+ssh-rsa -oMACs=hmac-sha1 -oPubkeyAcceptedKeyTypes=+ssh-dss,ssh-rsa"
+    ansible_ssh_extra_args: "-o KexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -o HostKeyAlgorithms=+ssh-rsa -o MACs=hmac-sha1 -o PubkeyAcceptedKeyTypes=+ssh-dss,ssh-rsa"
 
   tasks:
 
