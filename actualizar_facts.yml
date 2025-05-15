@@ -80,7 +80,7 @@
           proxmox_cores: "{{ proxmox_cores }}"
           proxmox_cpu: "{{ proxmox_cpu }}"
           proxmox_digest: "{{ proxmox_digest }}"
-          proxmox_memory: "{{ proxmox_memory ]]"
+          proxmox_memory: "{{ proxmox_memory }}"
           proxmox_meta: "{{ proxmox_meta }}"
           proxmox_net0: "{{ proxmox_net0 }}"
           proxmox_node: "{{ proxmox_node }}"
