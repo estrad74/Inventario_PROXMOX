@@ -97,7 +97,7 @@
           proxmox_snapshots: "{{ proxmox_snapshots | default('') }}"
           proxmox_sockets: "{{ proxmox_sockets | default('') }}"
           proxmox_status: "{{ proxmox_status | default('') }}"
-          proxmox_vmgenid: "{{ proxmox vmgenid | default('') }}"
+          proxmox_vmgenid: "{{ proxmox_vmgenid | default('') }}"
           proxmox_vmid: "{{ proxmox_vmid | default('') }}"
           proxmox_vmtype: "{{ proxmox_vmtype | default('') }}"
           ansible_facts: "{{ filtered_system_facts }}"
