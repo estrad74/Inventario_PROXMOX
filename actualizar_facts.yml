@@ -20,27 +20,47 @@
       package_facts:
         manager: auto
 
-    - name: Extraer versiones de Python instaladas
+    - name: Extraer versiones de Python instaladas sin json_query
       set_fact:
         python_versions_detected: "{{ python_versions_list | default([]) }}"
       vars:
         python_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'match', '^python[0-9.]*$') | list }}"
-        python_versions_list: "{{ python_packages | json_query('[].value[*].{name: source.key, version: version}') | list }}"
+        python_versions_list: >-
+          {% set result = [] %}
+          {% for pkg in python_packages %}
+            {% for item in pkg.value %}
+              {% set _ = result.append({'name': pkg.key, 'version': item.version}) %}
+            {% endfor %}
+          {% endfor %}
+          {{ result }}
 
-    - name: Extraer versiones de Java instaladas
+    - name: Extraer versiones de Java instaladas sin json_query
       set_fact:
         java_versions_detected: "{{ java_versions_list | default([]) }}"
       vars:
         java_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'search', 'openjdk|java') | list }}"
-        java_versions_list: "{{ java_packages | json_query('[].value[*].{name: source.key, version: version}') | list }}"
+        java_versions_list: >-
+          {% set result = [] %}
+          {% for pkg in java_packages %}
+            {% for item in pkg.value %}
+              {% set _ = result.append({'name': pkg.key, 'version': item.version}) %}
+            {% endfor %}
+          {% endfor %}
+          {{ result }}
 
-    - name: Extraer versiones de Tomcat instaladas
+    - name: Extraer versiones de Tomcat instaladas sin json_query
       set_fact:
         tomcat_versions_detected: "{{ tomcat_versions_list | default([]) }}"
       vars:
         tomcat_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'search', 'tomcat') | list }}"
-        tomcat_versions_list: "{{ tomcat_packages | json_query('[].value[*].{name: source.key, version: version}') | list }}"
-
+        tomcat_versions_list: >-
+          {% set result = [] %}
+          {% for pkg in tomcat_packages %}
+            {% for item in pkg.value %}
+              {% set _ = result.append({'name': pkg.key, 'version': item.version}) %}
+            {% endfor %}
+          {% endfor %}
+          {{ result }}
 
     - name: Construir diccionario con facts filtrados
       set_fact:
