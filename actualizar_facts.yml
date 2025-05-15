@@ -85,7 +85,7 @@
           proxmox_meta: "{{ proxmox_meta }}"
           proxmox_net0: "{{ proxmox_net0 }}"
           proxmox_node: "{{ proxmox_node }}"
-          proxmox_numa: "{{ proxmox_numa }}",
+          proxmox_numa: "{{ proxmox_numa }}"
           proxmox_ostype: "{{ proxmox_ostype }}"
           proxmox_qmpstatus: "{{ proxmox_qmpstatus }}"
           proxmox_scsi0: "{{ proxmox_scsi0 }}"
