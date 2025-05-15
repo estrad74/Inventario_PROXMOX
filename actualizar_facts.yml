@@ -79,7 +79,7 @@
           proxmox_boot: "{{ proxmox_boot }}"
           proxmox_cores: "{{ proxmox_cores }}"
           proxmox_cpu: "{{ proxmox_cpu }}"
-          proxmox_digest: "{{ promox_digest }}"
+          proxmox_digest: "{{ proxmox_digest }}"
           proxmox_ide2: "{{ proxmox_ide2 }}"
           proxmox_memory: "{{ proxmox_memory ]]"
           proxmox_meta: "{{ proxmox_meta }}"
