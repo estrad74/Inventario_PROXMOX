@@ -83,6 +83,7 @@
           
     - name: Actualizar host en AWX con facts filtrados
       awx.awx.host:
+        serial: 1
         controller_host: "{{ awx_url }}"
         controller_oauthtoken: "{{ awx_token }}"
         inventory: "{{ awx_inventory_id }}"
