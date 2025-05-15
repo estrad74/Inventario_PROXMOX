@@ -4,8 +4,15 @@
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
-    ansible_ssh_extra_args: "-oKexAlgorithms=+diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1 -oHostKeyAlgorithms=+ssh-rsa -oMACs=hmac-sha1 -oPubkeyAcceptedKeyTypes=+ssh-dss,ssh-rsa"
-
+    ansible_ssh_transfer_method: piped
+    ansible_ssh_common_args: >-
+      -o StrictHostKeyChecking=no 
+      -o UserKnownHostsFile=/dev/null
+      -o KexAlgorithms=+diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
+      -o Ciphers=+aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc
+      -o HostKeyAlgorithms=+ssh-rsa,ssh-dss
+      -o PubkeyAcceptedKeyTypes=+ssh-rsa,ssh-dss
+  
   tasks:
 
     - name: Recopilar facts estándar del sistema
