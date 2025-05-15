@@ -1,7 +1,6 @@
 ---
 - name: Recopilar facts comprehensivos
   hosts: all
-  serial: 1
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
@@ -177,4 +176,5 @@
           proxmox_vmtype: "{{ proxmox_vmtype | default('') }}"
           ansible_facts: "{{ comprehensive_system_facts }}"
       delegate_to: localhost
+      throttle: 1
 
