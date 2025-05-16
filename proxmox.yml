@@ -12,16 +12,21 @@ compose:
   name: (proxmox_name | default("")) | regex_replace('^.*---', '') 
   hostname: (proxmox_name | default("")) | regex_replace('^.*---', '')
   ansible_host: (proxmox_name | default("")) | regex_replace('---.*$', '')
-  # variables personalizadas para indicar la clave ssh que piden los hosts obsoletos.
-  is_old_ssh_rsa: proxmox_name is search('sv0003-php1pre') or proxmox_name is search('sv0004-php2pre') or proxmox_name is search('sv0014-liferay1des') or proxmox_name is search('sv0065-liferay1pre') or proxmox_name is search('sv0108-afirma2pre-nucleo') or proxmox_name is search('sv0196-liferay2pre')
-  is_old_ssh_diffie_hellman: proxmox_name is search('sv0029-Sirhuse1des-pagod1des') or proxmox_name is search('sv0107-afirma1pre-nucleo')
 keyed_groups:
   - prefix: os
     key: proxmox_ostype
 # Añadir grupos personalizados
 groups:
-  old_ssh_rsa: is_old_ssh_rsa | bool
-  old_ssh_diffie_hellman: is_old_ssh_diffie_hellman | bool
+  old_ssh_rsa: >-
+    proxmox_name is search('sv0003---php1pre') or 
+    proxmox_name is search('sv0004---php2pre') or 
+    proxmox_name is search('sv0014---liferay1des') or 
+    proxmox_name is search('sv0065---liferay1pre') or 
+    proxmox_name is search('sv0108---afirma2pre-nucleo') or 
+    proxmox_name is search('sv0196---liferay2pre')
+  old_ssh_diffie_hellman: >-
+    proxmox_name is search('sv0029---Sirhuse1des-pagod1des') or 
+    proxmox_name is search('sv0107---afirma1pre-nucleo')
   
 
 
