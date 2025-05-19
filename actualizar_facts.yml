@@ -86,7 +86,7 @@
         controller_oauthtoken: "{{ awx_token }}"
         inventory: "{{ awx_inventory_id }}"
         name: "{{ inventory_hostname }}"
-        new_name: "{{ hostname }}"
+        new_name: "{{ original_name }}"
         validate_certs: false
         variables:
           original_name: "{{ original_name }}"
