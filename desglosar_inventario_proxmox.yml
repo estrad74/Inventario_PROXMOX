@@ -20,13 +20,6 @@
     grupo_obsoletos: "legacy_hosts"      # Nombre del grupo a excluir
   
   tasks:
-    - name: Comprobar si el inventario ya existe
-      awx.awx.inventory_info:
-        name: "{{ inventario_linux_nombre }}"
-        controller_host: "{{ awx_url }}"
-        controller_oauthtoken: "{{ awx_token }}"
-        validate_certs: false
-      register: inventory_check
       
     - name: Crear inventario inteligente
       awx.awx.inventory:
@@ -39,7 +32,6 @@
         controller_oauthtoken: "{{ awx_token }}"
         validate_certs: false
       register: inventario_resultado
-      when: inventory_check.inventories | length == 0
       
     - name: Mostrar resultado
       debug:
