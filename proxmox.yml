@@ -27,7 +27,9 @@ groups:
     proxmox_name is search('sv0108---afirma2pre-nucleo') or 
     proxmox_name is search('sv0196---liferay2pre')
   linux_no_legacy_hosts: >-
-    (proxmox_ostype == 'l26') and
+    
+    (proxmox_ostype is search('l26') or
+    proxmox_ostype is search('linux')) and
     not (
       proxmox_name is search('sv0003---php1pre') or 
       proxmox_name is search('sv0004---php2pre') or 
@@ -39,8 +41,7 @@ groups:
       proxmox_name is search('sv0196---liferay2pre')
     )
   windows_hosts: >-
-    (proxmox_ostype == 'win10') or
-    (proxmox_ostype == 'win8')
+    proxmox_ostype is search ('win')
     
    
     
