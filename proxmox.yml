@@ -39,8 +39,8 @@ groups:
       proxmox_name is search('sv0196---liferay2pre')
     )
   windows_hosts: >-
-    (proxmox_ostype == 'os_win10') or
-    (proxmox_ostype == 'os_win8')
+    (proxmox_ostype == 'win10') or
+    (proxmox_ostype == 'win8')
     
    
     
