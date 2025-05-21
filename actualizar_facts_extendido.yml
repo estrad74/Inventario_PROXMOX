@@ -4,6 +4,7 @@
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
+    inventario_destino: 3
 
   tasks:
     - name: Recopilar información comprehensiva del sistema
@@ -138,7 +139,7 @@
       awx.awx.host:
         controller_host: "{{ awx_url }}"
         controller_oauthtoken: "{{ awx_token }}"
-        inventory: "{{ awx_inventory_id }}"
+        inventory: "{{ inventario_destino }}"
         name: "{{ inventory_hostname }}"
         new_name: "{{ hostname }}"
         validate_certs: false
