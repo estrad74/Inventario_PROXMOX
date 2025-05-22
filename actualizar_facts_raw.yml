@@ -35,30 +35,20 @@
       ignore_errors: yes
       
     - name: Obtener versión de Python
-      raw: python -V
+      raw: |
+        python -V 2>/dev/null
+        python3 --version 2>/dev/null
       register: python_version
       ignore_errors: yes
       
     - name: Obtener versión de Java
-      raw: |
-        find /usr /opt /home -name "java" -type f -executable 2>/dev/null | while read java; do
-          if [[ "$java" =~ /bin/java$ ]]; then
-            echo "$java: $($java -version 2>&1 | head -1 || echo 'Error')"
-          fi
-        done
+      raw: java -version 2>&1 || echo "Java not found"
       register: java_version
       ignore_errors: yes
     
     - name: Obtener versión de Tomcat
       raw: |
-        find /opt /usr /home -name "*tomcat*" -type d 2>/dev/null | while read tomcat; do
-          if [ -f "$tomcat/bin/catalina.sh" ]; then
-            echo "Tomcat found: $tomcat"
-            if [ -f "$tomcat/RELEASE-NOTES" ]; then
-              echo "  Version: $(head -3 $tomcat/RELEASE-NOTES | grep -i version)"
-            fi
-          fi
-        done
+        find /opt /usr /home -name "*tomcat*" -type d 2>/dev/null
       register: tomcat_version
       ignore_errors: yes
       
