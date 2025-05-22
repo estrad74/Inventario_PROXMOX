@@ -47,8 +47,7 @@
       ignore_errors: yes
     
     - name: Obtener versión de Tomcat
-      raw: |
-        find /opt /usr /home -name "*tomcat*" -type d 2>/dev/null
+      raw: find /opt /usr /home -name "*tomcat*" -type d 2>/dev/null | head -5 || echo "No tomcat found"
       register: tomcat_version
       ignore_errors: yes
       
