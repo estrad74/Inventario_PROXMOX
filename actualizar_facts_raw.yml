@@ -1,0 +1,101 @@
+
+- name: Recopilar facts con módulo raw
+  hosts: all
+  gather_facts: no
+  vars:
+    awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
+    awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
+    inventario_destino: 3
+  
+  tasks:
+    - name: Obtener información del kernel y sistema operativo
+      raw: uname -a
+      register: kernel_info
+
+    - name: Obtener información de la distribución Linux
+      raw: cat /etc/os-release
+      register: os_info
+
+    - name: Obtener información de las interfaces de red y direcciones IP
+      raw: ip a
+      register: ip_info
+
+    - name: Obtener información del procesador
+      raw: lscpu
+      register: cpu_info
+
+    - name: Obtener información de la memoria disponible
+      raw: free -h
+      register: memory_info
+      
+    - name: Obtener versión de Python
+      raw: python --version
+      register: python_version
+      ignore_errors: yes
+      
+    - name: Obtener versión de Java
+      raw: java -version
+      register: java_version
+      ignore_errors: yes
+    
+    - name: Obtener versión de Tomcat
+      raw: /path/to/tomcat/bin/version.sh
+      register: tomcat_version
+      ignore_errors: yes
+      
+    - name: Construir diccionario con los facts
+      set_fact:
+        filtered_system_facts:
+          network_interfaces: "{{ ip_info.stdout }}"
+          os_version: "{{ os_info.stdout }}"
+          kernel_version: "{{ kernel_info.stdout }}"
+          memory_details: "{{ memory_info.stdout }}"
+          cpu_details: "{{ cpu_info.stdout }}"
+          python_version: "{{ python_version.stdout }}"
+          java_version: "{{ java_version.stderr }}"
+          tomcat_version: "{{ tomcat_version.stdout }}"              
+          
+    - name: Actualizar host en AWX añadiendo los facts
+      awx.awx.host:
+        controller_host: "{{ awx_url }}"
+        controller_oauthtoken: "{{ awx_token }}"
+        inventory: "{{ inventario_destino }}"
+        name: "{{ inventory_hostname }}"
+        new_name: "{{ original_name }}"
+        validate_certs: false
+        variables:
+          original_name: "{{ original_name }}"
+          name: "{{ name }}"
+          hostname: "{{ hostname }}"
+          ansible_host: "{{ ansible_host }}"
+          proxmox:
+            proxmox_agent: "{{ proxmox_agent | default('') }}"
+            proxmox_agent_interfaces: "{{ proxmox_agent_interfaces | default('') }}"
+            proxmox_boot: "{{ proxmox_boot | default('') }}"
+            proxmox_cores: "{{ proxmox_cores | default('') }}"
+            proxmox_cpu: "{{ proxmox_cpu | default('') }}"
+            proxmox_digest: "{{ proxmox_digest | default('') }}"
+            proxmox_hotplug: "{{ proxmox_hotplug | default('') }}"
+            proxmox_ide0: "{{ proxmox_ide0 | default('') }}"
+            proxmox_memory: "{{ proxmox_memory | default('') }}"
+            proxmox_meta: "{{ proxmox_meta | default('') }}"
+            proxmox_net0: "{{ proxmox_net0 | default('') }}"
+            proxmox_node: "{{ proxmox_node | default('') }}"
+            proxmox_numa: "{{ proxmox_numa | default('') }}"
+            proxmox_ostype: "{{ proxmox_ostype | default('') }}"
+            proxmox_qmpstatus: "{{ proxmox_qmpstatus | default('')}}"
+            proxmox_scsi0: "{{ proxmox_scsi0 | default('') }}"
+            proxmox_scsi1: "{{ proxmox_scsi1 | default('') }}"
+            proxmox_scsi2: "{{ proxmox_scsi2 | default('') }}"
+            proxmox_scsi3: "{{ proxmox_scsi3 | default('') }}"
+            proxmox_scsihw: "{{ proxmox_scsihw | default('') }}"
+            proxmox_snapshots: "{{ proxmox_snapshots | default('') }}"
+            proxmox_sockets: "{{ proxmox_sockets | default('') }}"
+            proxmox_status: "{{ proxmox_status | default('') }}"
+            proxmox_vmgenid: "{{ proxmox_vmgenid | default('') }}"
+            proxmox_vmid: "{{ proxmox_vmid | default('') }}"
+            proxmox_vmtype: "{{ proxmox_vmtype | default('') }}"
+          ansible_facts: "{{ filtered_system_facts }}"
+      delegate_to: localhost
+      throttle: 1
+    

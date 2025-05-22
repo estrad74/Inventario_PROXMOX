@@ -1,5 +1,5 @@
 ---
-- name: Recopilar facts comprehensivos
+- name: Recopilar facts exhaustivos con módulo setup
   hosts: all
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
@@ -7,7 +7,7 @@
     inventario_destino: 3
 
   tasks:
-    - name: Recopilar información comprehensiva del sistema
+    - name: Recopilar facts exhaustivos
       setup:
         gather_subset:
           - all  # Recopila absolutamente todos los facts disponibles
@@ -135,7 +135,7 @@
             collection_timestamp: "{{ lookup('pipe', 'date \"+%Y-%m-%d %H:%M:%S\"') }}"
             collection_host: "{{ inventory_hostname }}"
 
-    - name: Actualizar host en AWX con facts comprehensivos
+    - name: Actualizar host en AWX añadiendo los facts
       awx.awx.host:
         controller_host: "{{ awx_url }}"
         controller_oauthtoken: "{{ awx_token }}"

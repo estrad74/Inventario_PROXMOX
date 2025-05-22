@@ -1,5 +1,5 @@
 ---
-- name: Recopilar facts
+- name: Recopilar facts básicos con módulo setup
   hosts: all
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
@@ -8,7 +8,7 @@
   
   tasks:
 
-    - name: Recopilar facts estándar del sistema
+    - name: Recopilar facts estándar
       setup:
         gather_subset:
           - hardware
@@ -20,7 +20,7 @@
       package_facts:
         manager: auto
 
-    - name: Extraer versiones de Python instaladas sin json_query
+    - name: Obtener versiones de Python instaladas
       set_fact:
         python_versions_detected: "{{ python_versions_list | default([]) }}"
       vars:
@@ -34,7 +34,7 @@
           {% endfor %}
           {{ result }}
 
-    - name: Extraer versiones de Java instaladas sin json_query
+    - name: Obtener versiones de Java instaladas
       set_fact:
         java_versions_detected: "{{ java_versions_list | default([]) }}"
       vars:
@@ -48,7 +48,7 @@
           {% endfor %}
           {{ result }}
 
-    - name: Extraer versiones de Tomcat instaladas sin json_query
+    - name: Obtener versiones de Tomcat instaladas
       set_fact:
         tomcat_versions_detected: "{{ tomcat_versions_list | default([]) }}"
       vars:
@@ -62,7 +62,7 @@
           {% endfor %}
           {{ result }}
 
-    - name: Construir diccionario con facts filtrados
+    - name: Construir diccionario con los facts
       set_fact:
         filtered_system_facts:
           hostname: "{{ ansible_hostname }}"
@@ -81,7 +81,7 @@
           tomcat_versions: "{{ tomcat_versions_detected }}"
           collected_at: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }}"
           
-    - name: Actualizar host en AWX con facts filtrados
+    - name: Actualizar host en AWX añadiendo los facts
       awx.awx.host:
         controller_host: "{{ awx_url }}"
         controller_oauthtoken: "{{ awx_token }}"
