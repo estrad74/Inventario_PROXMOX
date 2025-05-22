@@ -13,44 +13,65 @@
       register: kernel_info
 
     - name: Obtener información de la distribución Linux
-      raw: cat /etc/issue
+      raw: cat /etc/*release* 2>/dev/null | head -10
       register: os_info
       ignore_errors: yes
 
-    - name: Obtener información de las interfaces de red y direcciones IP
-      raw: cat /proc/net/dev
-      register: ip_info
+    - name: Recopilar información de red (sin ifconfig)
+      raw: |
+        echo "Interfaces de red:"
+        cat /proc/net/dev 2>/dev/null || echo "No network dev info"
+        echo "Direcciones IP:"
+        hostname -I 2>/dev/null || hostname -i 2>/dev/null || echo "No IP available"
+        echo "Interfaces disponibles:"
+        ls /sys/class/net/ 2>/dev/null || echo "No network interfaces info"
+        echo "Tabla de rutas:"
+        cat /proc/net/route 2>/dev/null || echo "No route info"
+      register: network_info
       ignore_errors: yes
 
     - name: Obtener información del procesador
-      raw: lscpu
+      raw: cat /proc/cpuinfo | grep -E "processor|model name|cpu cores" | head -10
       register: cpu_info
       ignore_errors: yes
 
-    - name: Obtener información de la memoria disponible
-      raw: free -h
+    - name: Obtener información de la memoria
+      raw: cat /proc/meminfo | grep -E "MemTotal|MemFree"
       register: memory_info
       ignore_errors: yes
       
     - name: Obtener versión de Python
-      raw: python --version
+      raw: python --version 2>&1 || python2 --version 2>&1 || python3 --version 2>&1 || echo "Python not found"
       register: python_version
       ignore_errors: yes
       
     - name: Obtener versión de Java
-      raw: java -version
+      raw: |
+        if command -v java >/dev/null 2>&1; then
+          echo "Java Runtime: $(java -version 2>&1 | head -1)"
+        else
+          echo "Java command not found in PATH"
+        fi
+        if command -v javac >/dev/null 2>&1; then
+          echo "Java Compiler: $(javac -version 2>&1)"
+        fi
+        echo "JAVA_HOME: ${JAVA_HOME:-Not set}"
       register: java_version
       ignore_errors: yes
     
     - name: Obtener versión de Tomcat
-      raw: /path/to/tomcat/bin/version.sh
+      raw: |
+        ps aux | grep -i tomcat | grep -v grep | hea d -3 || echo "No Tomcat processes"
+        echo "--- Tomcat Directories ---"
+        find /opt /usr/local /home -maxdepth 3 -name "*tomcat*" -type d 2>/dev/null | head -5 || echo "No Tomcat dirs found"
+        echo "CATALINA_HOME: ${CATALINA_HOME:-Not set}"
       register: tomcat_version
       ignore_errors: yes
       
     - name: Construir diccionario con los facts
       set_fact:
         filtered_system_facts:
-          network_interfaces: "{{ ip_info.stdout }}"
+          network_info: "{{ network_info.stdout }}"
           os_version: "{{ os_info.stdout }}"
           kernel_version: "{{ kernel_info.stdout }}"
           memory_details: "{{ memory_info.stdout }}"
