@@ -18,16 +18,19 @@
       ignore_errors: yes
 
     - name: Obtener información de las interfaces de red y direcciones IP
-      raw: ip a
+      raw: ifconfig
       register: ip_info
+      ignore_errors: yes
 
     - name: Obtener información del procesador
       raw: lscpu
       register: cpu_info
+      ignore_errors: yes
 
     - name: Obtener información de la memoria disponible
       raw: free -h
       register: memory_info
+      ignore_errors: yes
       
     - name: Obtener versión de Python
       raw: python --version
