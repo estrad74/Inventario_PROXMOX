@@ -36,13 +36,13 @@
       
     - name: Obtener versión de Python
       raw: |
-        python -V 2>/dev/null
-        python3 --version 2>/dev/null
+        command -v python >/dev/null 2>&1 && python -V 2>&1 | head -1 || echo "Python2 not found"
+        command -v python3 >/dev/null 2>&1 && python3 --version 2>&1 | head -1 || echo "Python3 not found"
       register: python_version
       ignore_errors: yes
       
     - name: Obtener versión de Java
-      raw: java -version 2>&1 || echo "Java not found"
+      raw: command -v java >/dev/null 2>&1 && java -version 2>&1 | head -1 || echo "Java not found"
       register: java_version
       ignore_errors: yes
     
