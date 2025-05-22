@@ -13,8 +13,9 @@
       register: kernel_info
 
     - name: Obtener información de la distribución Linux
-      raw: cat /etc/os-release
+      raw: lsb_realease -a
       register: os_info
+      ignore_errors: yes
 
     - name: Obtener información de las interfaces de red y direcciones IP
       raw: ip a
