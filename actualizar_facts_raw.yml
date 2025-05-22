@@ -61,7 +61,7 @@
           memory_details: "{{ memory_info.stdout }}"
           cpu_details: "{{ cpu_info.stdout }}"
           python_version: "{{ python_version.stdout }}"
-          java_version: "{{ java_version.stderr }}"
+          java_version: "{{ java_version.stdout }}"
           tomcat_version: "{{ tomcat_version.stdout }}"              
           
     - name: Actualizar host en AWX añadiendo los facts
