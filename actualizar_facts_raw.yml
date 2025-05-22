@@ -35,30 +35,30 @@
       ignore_errors: yes
       
     - name: Obtener versión de Python
-      raw: python --version 2>&1 || python2 --version 2>&1 || python3 --version 2>&1 || echo "Python not found"
+      raw: python -V
       register: python_version
       ignore_errors: yes
       
     - name: Obtener versión de Java
       raw: |
-        if command -v java >/dev/null 2>&1; then
-          echo "Java Runtime: $(java -version 2>&1 | head -1)"
-        else
-          echo "Java command not found in PATH"
-        fi
-        if command -v javac >/dev/null 2>&1; then
-          echo "Java Compiler: $(javac -version 2>&1)"
-        fi
-        echo "JAVA_HOME: ${JAVA_HOME:-Not set}"
+        find /usr /opt /home -name "java" -type f -executable 2>/dev/null | while read java; do
+          if [[ "$java" =~ /bin/java$ ]]; then
+            echo "$java: $($java -version 2>&1 | head -1 || echo 'Error')"
+          fi
+        done
       register: java_version
       ignore_errors: yes
     
     - name: Obtener versión de Tomcat
       raw: |
-        ps aux | grep -i tomcat | grep -v grep | hea d -3 || echo "No Tomcat processes"
-        echo "--- Tomcat Directories ---"
-        find /opt /usr/local /home -maxdepth 3 -name "*tomcat*" -type d 2>/dev/null | head -5 || echo "No Tomcat dirs found"
-        echo "CATALINA_HOME: ${CATALINA_HOME:-Not set}"
+        find /opt /usr /home -name "*tomcat*" -type d 2>/dev/null | while read tomcat; do
+          if [ -f "$tomcat/bin/catalina.sh" ]; then
+            echo "Tomcat found: $tomcat"
+            if [ -f "$tomcat/RELEASE-NOTES" ]; then
+              echo "  Version: $(head -3 $tomcat/RELEASE-NOTES | grep -i version)"
+            fi
+          fi
+        done
       register: tomcat_version
       ignore_errors: yes
       
