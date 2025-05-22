@@ -13,7 +13,7 @@
       register: kernel_info
 
     - name: Obtener información de la distribución Linux
-      raw: lsb_realease -a
+      raw: cat /etc/issue
       register: os_info
       ignore_errors: yes
 
