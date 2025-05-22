@@ -18,7 +18,7 @@
       ignore_errors: yes
 
     - name: Obtener información de las interfaces de red y direcciones IP
-      raw: ifconfig
+      raw: cat /proc/net/dev
       register: ip_info
       ignore_errors: yes
 
