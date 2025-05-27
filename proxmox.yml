@@ -41,8 +41,9 @@ groups:
       proxmox_name is search('sv0196---liferay2pre')
     )
   windows_hosts: >-
-    proxmox_ostype is search ('win')
-    
+    proxmox_ostype is search ('win') or
+    proxmox_name is search('sv0235---instdep2pre') or
+    proxmox_name is search('sv0386---cmdb1pre')
    
     
   
