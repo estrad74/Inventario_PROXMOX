@@ -38,12 +38,15 @@ groups:
       proxmox_name is search('sv0065---liferay1pre') or 
       proxmox_name is search('sv0107---afirma1pre-nucleo') or
       proxmox_name is search('sv0108---afirma2pre-nucleo') or 
-      proxmox_name is search('sv0196---liferay2pre')
+      proxmox_name is search('sv0196---liferay2pre') or
+      proxmox_name is search('pvebackup')
     )
   windows_hosts: >-
     proxmox_ostype is search ('win') or
     proxmox_name is search('sv0525---instdep2pre') or
     proxmox_name is search('sv0386---cmdb1pre')
+  backup_hosts: >-
+    proxmox_name is search('pvebackup')
    
     
   
