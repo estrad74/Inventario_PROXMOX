@@ -61,7 +61,8 @@
           cpu_details: "{{ cpu_info.stdout }}"
           python_version: "{{ python_version.stdout }}"
           java_version: "{{ java_version.stdout }}"
-          tomcat_version: "{{ tomcat_version.stdout }}"              
+          tomcat_version: "{{ tomcat_version.stdout }}"       
+          collected_at: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }}"
           
     - name: Actualizar host en AWX añadiendo los facts
       awx.awx.host:
