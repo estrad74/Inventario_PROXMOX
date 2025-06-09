@@ -8,6 +8,14 @@
   
   tasks:
 
+    - name: Comprobar conexión con los hosts
+      ansible.windows.win_ping:
+      ignore_unreachable: true
+      
+    - name: Mostrar krb5.log
+      ansible.builtin.debug:
+        msg: "{{ lookup( 'file', '/tmp/krb5.log' ) }}"
+    
     - name: Recopilar facts estándar
       setup:
         gather_subset:
