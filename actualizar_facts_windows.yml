@@ -16,51 +16,59 @@
           - virtual
           - distribution
 
-    - name: Recopilar información de paquetes instalados
-      package_facts:
-        manager: auto
+    - name: Obtener versiones de Python instaladas (Windows)
+      win_shell: |
+        try {
+            $version = & python --version 2>&1
+            if ($version -match "Python (\d+\.\d+\.\d+)") {
+                @{ name = "Python"; version = $matches[1] } | ConvertTo-Json
+            } else { "[]" }
+        } catch { "[]" }
+      register: python_versions_raw
+      when: ansible_os_family == "Windows"
+      ignore_errors: yes
 
-    - name: Obtener versiones de Python instaladas
-      set_fact:
-        python_versions_detected: "{{ python_versions_list | default([]) }}"
-      vars:
-        python_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'match', '^python[0-9.]*$') | list }}"
-        python_versions_list: >-
-          {% set result = [] %}
-          {% for pkg in python_packages %}
-            {% for item in pkg.value %}
-              {% set _ = result.append({'name': pkg.key, 'version': item.version}) %}
-            {% endfor %}
-          {% endfor %}
-          {{ result }}
+    - name: Obtener versiones de Java instaladas (Windows)
+      win_shell: |
+        try {
+            $version = & java -version 2>&1
+            if ($version -match 'version "([^"]+)"') {
+                @{ name = "Java"; version = $matches[1] } | ConvertTo-Json
+            } else { "[]" }
+        } catch { "[]" }
+      register: java_versions_raw
+      when: ansible_os_family == "Windows"
+      ignore_errors: yes
 
-    - name: Obtener versiones de Java instaladas
-      set_fact:
-        java_versions_detected: "{{ java_versions_list | default([]) }}"
-      vars:
-        java_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'search', 'openjdk|java') | list }}"
-        java_versions_list: >-
-          {% set result = [] %}
-          {% for pkg in java_packages %}
-            {% for item in pkg.value %}
-              {% set _ = result.append({'name': pkg.key, 'version': item.version}) %}
-            {% endfor %}
-          {% endfor %}
-          {{ result }}
+    - name: Obtener servicios de Tomcat (Windows)
+      win_shell: |
+        $tomcatServices = Get-Service | Where-Object { $_.Name -like "*tomcat*" }
+        if ($tomcatServices) {
+            $tomcatServices | ForEach-Object { 
+                @{ name = $_.DisplayName; status = $_.Status.ToString() }
+            } | ConvertTo-Json
+        } else { "[]" }
+      register: tomcat_versions_raw
+      when: ansible_os_family == "Windows"
+      ignore_errors: yes
 
-    - name: Obtener versiones de Tomcat instaladas
+    - name: Procesar versiones detectadas
       set_fact:
-        tomcat_versions_detected: "{{ tomcat_versions_list | default([]) }}"
-      vars:
-        tomcat_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'search', 'tomcat') | list }}"
-        tomcat_versions_list: >-
-          {% set result = [] %}
-          {% for pkg in tomcat_packages %}
-            {% for item in pkg.value %}
-              {% set _ = result.append({'name': pkg.key, 'version': item.version}) %}
-            {% endfor %}
-          {% endfor %}
-          {{ result }}
+        python_versions_detected: "{{ [python_versions_raw.stdout | from_json] if python_versions_raw.stdout is defined and python_versions_raw.stdout != '[]' else [] }}"
+        java_versions_detected: "{{ [java_versions_raw.stdout | from_json] if java_versions_raw.stdout is defined and java_versions_raw.stdout != '[]' else [] }}"
+        tomcat_versions_detected: "{{ tomcat_versions_raw.stdout | from_json if tomcat_versions_raw.stdout is defined and tomcat_versions_raw.stdout != '[]' else [] }}"
+      when: ansible_os_family == "Windows"
+
+    - name: Inicializar variables por defecto para sistemas no-Windows
+      set_fact:
+        python_versions_detected: []
+        java_versions_detected: []
+        tomcat_versions_detected: []
+      when: ansible_os_family != "Windows"
+
+    - name: Obtener timestamp actual
+      set_fact:
+        current_timestamp: "{{ ansible_date_time.iso8601 }}"
 
     - name: Construir diccionario con los facts
       set_fact:
@@ -72,14 +80,15 @@
             name: "{{ ansible_distribution }}"
             version: "{{ ansible_distribution_version }}"
             release: "{{ ansible_distribution_release | default('') }}"
+            family: "{{ ansible_os_family }}"
           kernel: "{{ ansible_kernel }}"
           architecture: "{{ ansible_architecture }}"
           memory_mb: "{{ ansible_memtotal_mb }}"
           cpu_count: "{{ ansible_processor_count }}"
           python_versions: "{{ python_versions_detected }}"
           java_versions: "{{ java_versions_detected }}"
-          tomcat_versions: "{{ tomcat_versions_detected }}"
-          collected_at: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }}"
+          tomcat_services: "{{ tomcat_versions_detected }}"
+          collected_at: "{{ current_timestamp }}"
           
     - name: Actualizar host en AWX añadiendo los facts
       awx.awx.host:
@@ -87,13 +96,13 @@
         controller_oauthtoken: "{{ awx_token }}"
         inventory: "{{ inventario_destino }}"
         name: "{{ inventory_hostname }}"
-        new_name: "{{ original_name }}"
+        new_name: "{{ original_name | default(inventory_hostname) }}"
         validate_certs: false
         variables:
-          original_name: "{{ original_name }}"
-          name: "{{ name }}"
-          hostname: "{{ hostname }}"
-          ansible_host: "{{ ansible_host }}"
+          original_name: "{{ original_name | default(inventory_hostname) }}"
+          name: "{{ name | default(inventory_hostname) }}"
+          hostname: "{{ hostname | default(ansible_hostname) }}"
+          ansible_host: "{{ ansible_host | default(ansible_default_ipv4.address) }}"
           proxmox_agent: "{{ proxmox_agent | default('') }}"
           proxmox_agent_interfaces: "{{ proxmox_agent_interfaces | default('') }}"
           proxmox_boot: "{{ proxmox_boot | default('') }}"
