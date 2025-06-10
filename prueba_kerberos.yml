@@ -1,0 +1,11 @@
+- name: Debug env vars
+  hosts: localhost
+ gather_facts: no
+  tasks:
+    - name: Mostrar variables de entorno
+      ansible.builtin.shell: env
+      register: env_output
+
+    - name: Mostrar salida
+      debug:
+        var: env_output.stdout_lines
