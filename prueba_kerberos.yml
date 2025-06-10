@@ -1,6 +1,6 @@
 - name: Debug env vars
   hosts: localhost
- gather_facts: no
+  gather_facts: no
   tasks:
     - name: Mostrar variables de entorno
       ansible.builtin.shell: env
