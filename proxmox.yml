@@ -21,6 +21,7 @@ groups:
     proxmox_name is search('sv0003---php1pre') or 
     proxmox_name is search('sv0004---php2pre') or 
     proxmox_name is search('sv0014---liferay1des') or 
+    proxmox_name is search('sv0050---ansible1pre') or 
     proxmox_name is search('sv0065---liferay1pre') or 
     proxmox_name is search('sv0196---liferay2pre')
   legacy_python_hosts: >-
