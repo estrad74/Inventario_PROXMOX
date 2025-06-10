@@ -5,8 +5,7 @@
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
-    inventario_destino: 3
-  
+      
   tasks:
 
     - name: Comprobar conexión con los hosts
