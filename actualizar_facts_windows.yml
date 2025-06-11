@@ -5,11 +5,21 @@
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
+    kerberos_user: "{{ lookup('env', 'KRB5_PRINCIPAL') }}"
+    kerberos_password: "{{ lookup('env', 'KRB5_PASSWORD') }}"
       
   tasks:
 
+    - name: Mostrar variables Kerberos
+      debug:
+        msg: |
+          User: {{ kerberos_user }}
+          Password: {{ kerberos_password }}
+      delegate_to: localhost
+      run_once: true
+
     - name: Obtener ticket Kerberos
-      shell: echo "{{ ansible_password }}" | kinit {{ ansible_user }} 2>&1
+      shell: echo "{{  kerberos_password }}" | kinit {{ kerberos_user }} 2>&1
       delegate_to: localhost
       run_once: true
       register: kinit_result
