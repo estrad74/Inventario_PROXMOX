@@ -16,15 +16,30 @@
           Transporte: {{ ansible_winrm_transport | default('No definido') }}
           Host: {{ ansible_host }}
       delegate_to: localhost
+      run_once: true
     
+    - name: Verificar tickets Kerberos
+      shell: |
+        echo "=== KLIST ==="
+        klist 2>/dev/null || echo "No hay tickets Kerberos"
+        echo "=== WHOAMI ==="
+        whoami
+        echo "=== KRB5 CONFIG ==="
+        cat /etc/krb5.conf | grep -A5 -B5 CED || echo "No se encuentra CED en krb5.conf"
+      register: kerberos_debug
+      delegate_to: localhost
+      run_once: true
+
+    - name: Mostrar info Kerberos
+      debug:
+        msg: "{{ kerberos_debug.stdout }}"
+      delegate_to: localhost
+      run_once: true
+
     - name: Comprobar conexión con los hosts
       ansible.windows.win_ping:
       ignore_unreachable: true
       
-    - name: Mostrar krb5.log
-      ansible.builtin.debug:
-        msg: "{{ lookup( 'file', '/tmp/krb5.log' ) }}"
-    
     - name: Recopilar facts estándar
       setup:
         gather_subset:
