@@ -8,16 +8,24 @@
       
   tasks:
 
-    - name: Mostrar variables de conexión
-      debug:
-        msg: |
-          Usuario: {{ ansible_user }}
-          Conexión: {{ ansible_connection }}
-          Transporte: {{ ansible_winrm_transport | default('No definido') }}
-          Host: {{ ansible_host }}
+    - name: Obtener ticket Kerberos
+      shell: echo "{{ ansible_password }}" | kinit {{ ansible_user }}
       delegate_to: localhost
       run_once: true
-    
+      no_log: true  # Para no mostrar la password en logs
+  
+    - name: Verificar ticket obtenido
+      shell: klist
+      delegate_to: localhost
+      run_once: true
+      register: klist_result
+  
+    - name: Mostrar tickets disponibles
+      debug:
+        msg: "{{ klist_result.stdout }}"
+      delegate_to: localhost
+      run_once: true
+
     - name: Verificar tickets Kerberos
       shell: |
         echo "=== KLIST ==="
