@@ -42,12 +42,6 @@
     - name: Comprobar conexión con los hosts
       ansible.windows.win_ping:
       register: ping_result
-      ignore_unreachable: true
-      
-    - name: Mostrar resultado de conectividad
-      debug:
-        msg: "{{ inventory_hostname }}: {{ 'CONECTADO' if ping_result is succeeded else 'NO CONECTADO - ' + (ping_result.msg | default('Error desconocido')) }}"
-      
       
     - name: Recopilar facts estándar
       setup:
