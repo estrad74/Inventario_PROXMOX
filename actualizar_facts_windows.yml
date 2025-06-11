@@ -1,21 +1,12 @@
 ---
 - name: Recopilar facts básicos con módulo setup
-  hosts: all
+  hosts: localhost
   gather_facts: no
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
       
   tasks:
-
-    - name: Comprobar conexión con los hosts
-      ansible.windows.win_ping:
-      register: ping_result
-      ignore_unreachable: true
-
-    - name: Mostrar resultado de ping
-      debug:
-        msg: "{{ inventory_hostname }}: {{ 'CONECTADO' if ping_result is succeeded else 'NO CONECTADO' }}"
 
     - name: Verificar si existe krb5.log
       stat:
