@@ -9,11 +9,21 @@
   tasks:
 
     - name: Obtener ticket Kerberos
-      shell: echo "{{ ansible_password }}" | kinit {{ ansible_user }}
+      shell: echo "{{ ansible_password }}" | kinit {{ ansible_user }} 2>&1
       delegate_to: localhost
       run_once: true
-      no_log: true  # Para no mostrar la password en logs
-  
+      register: kinit_result
+      ignore_errors: true
+      
+    - name: Mostrar resultado de kinit
+      debug:
+        msg: |
+          Return code: {{ kinit_result.rc }}
+          Stdout: {{ kinit_result.stdout }}
+          Stderr: {{ kinit_result.stderr }}
+      delegate_to: localhost
+      run_once: true
+        
     - name: Verificar ticket obtenido
       shell: klist
       delegate_to: localhost
