@@ -1,12 +1,22 @@
 ---
 - name: Recopilar facts básicos con módulo setup
   hosts: all
+  gather_facts: no
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
       
   tasks:
 
+    - name: Mostrar variables de conexión
+      debug:
+        msg: |
+          Usuario: {{ ansible_user }}
+          Conexión: {{ ansible_connection }}
+          Transporte: {{ ansible_winrm_transport | default('No definido') }}
+          Host: {{ ansible_host }}
+      delegate_to: localhost
+    
     - name: Comprobar conexión con los hosts
       ansible.windows.win_ping:
       ignore_unreachable: true
