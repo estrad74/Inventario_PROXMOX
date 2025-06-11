@@ -13,6 +13,10 @@
       register: ping_result
       ignore_unreachable: true
 
+    - name: Mostrar resultado de ping
+      debug:
+        msg: "{{ inventory_hostname }}: {{ 'CONECTADO' if ping_result is succeeded else 'NO CONECTADO' }}"
+
     - name: Verificar si existe krb5.log
       stat:
         path: /tmp/krb5.log
