@@ -1,7 +1,6 @@
 ---
 - name: Recopilar facts básicos con módulo setup
   hosts: all
-  gather_facts: no
   vars:
     awx_url: "{{ lookup('env', 'AWX_API_URL') }}"
     awx_token: "{{ lookup('env', 'AWX_OAUTH_TOKEN') }}"
@@ -27,23 +26,9 @@
       run_once: true
       register: klist_result
 
-    - name: Comprobar conexión con los hosts
-      ansible.windows.win_ping:
-      register: ping_result
-      ignore_unreachable: true
-      
-    - name: Mostrar resultado de conectividad DETALLADO
+    - name: Mostrar resultado klist
       debug:
-        msg: |
-          Host: {{ inventory_hostname }}
-          Succeeded: {{ ping_result is succeeded }}
-          Failed: {{ ping_result is failed }}
-          Skipped: {{ ping_result is skipped }}
-          Unreachable: {{ ping_result is unreachable }}
-          Return Code: {{ ping_result.rc | default('N/A') }}
-          Error Message: {{ ping_result.msg | default('Sin mensaje') }}
-          Exception: {{ ping_result.exception | default('Sin excepción') }}
-          Stdout: {{ ping_result.stdout | default('Sin stdout') }}
+        var: klist_result
       
     - name: Recopilar facts estándar
       setup:
@@ -53,7 +38,7 @@
           - virtual
           - distribution
 
-    - name: Obtener versiones de Python instaladas (Windows)
+    - name: Obtener versiones de Python instaladas
       win_shell: |
         try {
             $version = & python --version 2>&1
@@ -62,10 +47,9 @@
             } else { "[]" }
         } catch { "[]" }
       register: python_versions_raw
-      when: ansible_os_family == "Windows"
       ignore_errors: yes
 
-    - name: Obtener versiones de Java instaladas (Windows)
+    - name: Obtener versiones de Java instaladas
       win_shell: |
         try {
             $version = & java -version 2>&1
@@ -74,10 +58,9 @@
             } else { "[]" }
         } catch { "[]" }
       register: java_versions_raw
-      when: ansible_os_family == "Windows"
       ignore_errors: yes
 
-    - name: Obtener servicios de Tomcat (Windows)
+    - name: Obtener servicios de Tomcat
       win_shell: |
         $tomcatServices = Get-Service | Where-Object { $_.Name -like "*tomcat*" }
         if ($tomcatServices) {
@@ -86,7 +69,6 @@
             } | ConvertTo-Json
         } else { "[]" }
       register: tomcat_versions_raw
-      when: ansible_os_family == "Windows"
       ignore_errors: yes
 
     - name: Procesar versiones detectadas
@@ -94,14 +76,6 @@
         python_versions_detected: "{{ [python_versions_raw.stdout | from_json] if python_versions_raw.stdout is defined and python_versions_raw.stdout != '[]' else [] }}"
         java_versions_detected: "{{ [java_versions_raw.stdout | from_json] if java_versions_raw.stdout is defined and java_versions_raw.stdout != '[]' else [] }}"
         tomcat_versions_detected: "{{ tomcat_versions_raw.stdout | from_json if tomcat_versions_raw.stdout is defined and tomcat_versions_raw.stdout != '[]' else [] }}"
-      when: ansible_os_family == "Windows"
-
-    - name: Inicializar variables por defecto para sistemas no-Windows
-      set_fact:
-        python_versions_detected: []
-        java_versions_detected: []
-        tomcat_versions_detected: []
-      when: ansible_os_family != "Windows"
 
     - name: Obtener timestamp actual
       set_fact:
