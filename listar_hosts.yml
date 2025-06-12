@@ -1,11 +1,11 @@
-- name: Mostrar lista limpia de hosts
+- name: Mostrar lista limpia de hosts con saltos de línea reales
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Mostrar solo nombres de host sin decoración
+    - name: Mostrar nombres como bloque YAML (saltos de línea visibles)
       run_once: true
-      vars:
-        lista_hosts: "{{ groups['all'] | join('\n') }}"
       debug:
-        msg: "{{ lista_hosts }}"
-
+        msg: >
+          {% for host in groups['all'] %}
+          {{ host }}
+          {% endfor %}
