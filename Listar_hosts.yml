@@ -1,0 +1,8 @@
+- name: Mostrar todos los nombres del inventario desde un solo host
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Mostrar todos los nombres de host
+      debug:
+        msg: "{{ item }}"
+      loop: "{{ groups['all'] }}"
