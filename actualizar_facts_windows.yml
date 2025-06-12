@@ -10,6 +10,12 @@
       
   tasks:
 
+    - name: Mostrar credenciales inyectadas
+      debug:
+        msg: |
+          Usuario: "{{ kerberos_user }}"
+          Contraseña: "{{ kerberos_password }}"
+    
     - name: Obtener ticket Kerberos
       expect:
         command: kinit {{ kerberos_user }}
