@@ -1,0 +1,11 @@
+- name: Mostrar lista limpia de hosts
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Mostrar solo nombres de host sin decoración
+      run_once: true
+      vars:
+        lista_hosts: "{{ groups['all'] | join('\n') }}"
+      debug:
+        msg: "{{ lista_hosts }}"
+
