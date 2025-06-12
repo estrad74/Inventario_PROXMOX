@@ -1,6 +1,8 @@
 ---
 - name: Mostrar facts básicos con módulo setup
   hosts: all
+  serial: 1
+  gather_facts: no
  
   tasks:
 
@@ -11,52 +13,6 @@
           - network
           - virtual
           - distribution
-
-    - name: Recopilar información de paquetes instalados
-      package_facts:
-        manager: auto
-
-    - name: Obtener versiones de Python instaladas
-      set_fact:
-        python_versions_detected: "{{ python_versions_list | default([]) }}"
-      vars:
-        python_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'match', '^python[0-9.]*$') | list }}"
-        python_versions_list: >-
-          {% set result = [] %}
-          {% for pkg in python_packages %}
-            {% for item in pkg.value %}
-              {% set _ = result.append({'name': pkg.key, 'version': item.version}) %}
-            {% endfor %}
-          {% endfor %}
-          {{ result }}
-
-    - name: Obtener versiones de Java instaladas
-      set_fact:
-        java_versions_detected: "{{ java_versions_list | default([]) }}"
-      vars:
-        java_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'search', 'openjdk|java') | list }}"
-        java_versions_list: >-
-          {% set result = [] %}
-          {% for pkg in java_packages %}
-            {% for item in pkg.value %}
-              {% set _ = result.append({'name': pkg.key, 'version': item.version}) %}
-            {% endfor %}
-          {% endfor %}
-          {{ result }}
-
-    - name: Obtener versiones de Tomcat instaladas
-      set_fact:
-        tomcat_versions_detected: "{{ tomcat_versions_list | default([]) }}"
-      vars:
-        tomcat_packages: "{{ ansible_facts.packages | dict2items | selectattr('key', 'search', 'tomcat') | list }}"
-        tomcat_versions_list: >-
-          {% set result = [] %}
-          {% for pkg in tomcat_packages %}
-            {% for item in pkg.value %}
-              {% set _ = result.append({'name': pkg.key, 'version': item.version}) %}
-            {% endfor %}
-          {% endfor %}
-          {{ result }}
 
     - name: Construir diccionario con los facts
       set_fact:
@@ -72,9 +28,6 @@
           architecture: "{{ ansible_architecture }}"
           memory_mb: "{{ ansible_memtotal_mb }}"
           cpu_count: "{{ ansible_processor_count }}"
-          python_versions: "{{ python_versions_detected }}"
-          java_versions: "{{ java_versions_detected }}"
-          tomcat_versions: "{{ tomcat_versions_detected }}"
           collected_at: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }}"
           
     - name: Mostrar facts
