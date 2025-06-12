@@ -30,6 +30,8 @@
     - name: Mostrar resultado klist
       debug:
         var: klist_result
+      delegate_to: localhost
+      run_once: true        
       
     - name: Recopilar facts estándar
       setup:
