@@ -10,12 +10,6 @@
       
   tasks:
 
-    - name: Mostrar credenciales inyectadas
-      debug:
-        msg: |
-          Usuario: "{{ kerberos_user }}"
-          Contraseña: "{{ kerberos_password }}"
-    
     - name: Obtener ticket Kerberos
       expect:
         command: kinit {{ kerberos_user }}
@@ -27,27 +21,20 @@
       register: kinit_result
       ignore_errors: true
       
-    - name: Mostrar resultado de kinit
-      debug:
-        var: kinit_result
-      delegate_to: localhost
-      run_once: true
-      
     - name: Verificar ticket obtenido
       shell: klist
       delegate_to: localhost
       run_once: true
-      register: klist_result      
-      
-    - name: Mostrar resultado de klist
-      debug:
-        var: klist_result
-      delegate_to: localhost
-      run_once: true
-              
+      register: klist_result
+
     - name: Comprobar conexión con los hosts
       ansible.windows.win_ping:
       register: ping_result
+      ignore_unreachable: true
+      
+    - name: Mostrar resultado de conectividad
+      debug:
+        msg: "{{ inventory_hostname }}: {{ 'CONECTADO' if ping_result is succeeded else 'NO CONECTADO - ' + (ping_result.msg | default('Error desconocido')) }}"
       
     - name: Recopilar facts estándar
       setup:
