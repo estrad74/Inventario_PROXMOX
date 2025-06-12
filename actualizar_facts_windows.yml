@@ -32,9 +32,18 @@
       register: ping_result
       ignore_unreachable: true
       
-    - name: Mostrar resultado de conectividad
+    - name: Mostrar resultado de conectividad DETALLADO
       debug:
-        msg: "{{ inventory_hostname }}: {{ 'CONECTADO' if ping_result is succeeded else 'NO CONECTADO - ' + (ping_result.msg | default('Error desconocido')) }}"
+        msg: |
+          Host: {{ inventory_hostname }}
+          Succeeded: {{ ping_result is succeeded }}
+          Failed: {{ ping_result is failed }}
+          Skipped: {{ ping_result is skipped }}
+          Unreachable: {{ ping_result is unreachable }}
+          Return Code: {{ ping_result.rc | default('N/A') }}
+          Error Message: {{ ping_result.msg | default('Sin mensaje') }}
+          Exception: {{ ping_result.exception | default('Sin excepción') }}
+          Stdout: {{ ping_result.stdout | default('Sin stdout') }}
       
     - name: Recopilar facts estándar
       setup:
