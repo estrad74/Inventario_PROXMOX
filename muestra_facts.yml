@@ -3,6 +3,7 @@
   hosts: all
   serial: 1
   gather_facts: no
+  any_errors_fatal: false
  
   tasks:
 
@@ -13,7 +14,6 @@
           - network
           - virtual
           - distribution
-      ignore_errors: yes
 
     - name: Construir diccionario con los facts
       set_fact:
