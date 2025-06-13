@@ -4,5 +4,5 @@
   gather_facts: false
 
   tasks:
-    - name: Ejecutar comando (aunque falle o no haya conexión)
+    - name: Ejecutar comando
       command: echo "Hola desde {{ inventory_hostname }}"
