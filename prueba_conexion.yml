@@ -1,0 +1,8 @@
+---
+- name: Playbook de prueba de conexión
+  hosts: all
+  gather_facts: false  # Si no necesitas recopilar facts del sistema
+  tasks:
+    - name: Mostrar mensaje de prueba
+      debug:
+        msg: "Conexión exitosa con el host {{ inventory_hostname }}"
