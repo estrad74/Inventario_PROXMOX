@@ -5,6 +5,7 @@
   serial: 1  # Procesar un host a la vez
   
   tasks:
-    - name: Mostrar mensaje de prueba
-      debug:
-        msg: "Conexión exitosa con el host {{ inventory_hostname }}"
+    
+    - name: Echo Hola
+      ansible.builtin.command:
+        cmd: echo "Hola desde {{ inventory_hostname }}"
