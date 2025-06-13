@@ -1,7 +1,6 @@
 ---
 - name: Mostrar facts básicos con módulo setup
   hosts: all
-  serial: 1
   gather_facts: no
   any_errors_fatal: false
  
