@@ -1,5 +1,5 @@
 ---
-- name: Playbook que continúa ante cualquier error
+- name: Playbook de prueba de conexión
   hosts: all
   gather_facts: false
 
