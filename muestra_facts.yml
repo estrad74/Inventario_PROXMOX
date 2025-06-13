@@ -13,6 +13,7 @@
           - network
           - virtual
           - distribution
+      ignore_errors: yes
 
     - name: Construir diccionario con los facts
       set_fact:
