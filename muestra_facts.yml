@@ -14,6 +14,7 @@
           - network
           - virtual
           - distribution
+      ignore_errors: true
 
     - name: Construir diccionario con los facts
       set_fact:
@@ -30,7 +31,9 @@
           memory_mb: "{{ ansible_memtotal_mb }}"
           cpu_count: "{{ ansible_processor_count }}"
           collected_at: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }}"
+      ignore_errors: true
           
     - name: Mostrar facts
       debug:
         var: filtered_system_facts
+      ignore_errors: true
