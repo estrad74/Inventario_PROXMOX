@@ -1,11 +1,8 @@
 ---
-- name: Playbook de prueba de conexión
+- name: Playbook que continúa ante cualquier error
   hosts: all
   gather_facts: false
-  serial: 1  # Procesar un host a la vez
-  
+
   tasks:
-    
-    - name: Echo Hola
-      ansible.builtin.command:
-        cmd: echo "Hola desde {{ inventory_hostname }}"
+    - name: Ejecutar comando (aunque falle o no haya conexión)
+      command: echo "Hola desde {{ inventory_hostname }}"
