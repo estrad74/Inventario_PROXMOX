@@ -1,0 +1,8 @@
+---
+- name: Playbook de prueba de conexión
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Ejecutar comando
+      raw: echo "Hola desde {{ inventory_hostname }}"
