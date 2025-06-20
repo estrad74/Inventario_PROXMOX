@@ -6,3 +6,9 @@
   tasks:
     - name: Ejecutar comando
       command: echo "Hola desde {{ inventory_hostname }}"
+      register: resultado
+      
+    - name: Mostrar resultado
+      debug:
+        var: resultado
+        

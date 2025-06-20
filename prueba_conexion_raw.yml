@@ -6,3 +6,10 @@
   tasks:
     - name: Ejecutar comando
       raw: echo "Hola desde {{ inventory_hostname }}"
+      register: resultado
+      
+    - name: Mostrar resultado
+      debug:
+        var: resultado
+        
+      
