@@ -27,7 +27,17 @@ groups:
   legacy_python_hosts: >-
     proxmox_name is search('sv0029---sirhuse1des-pagod1des') or 
     proxmox_name is search('sv0107---afirma1pre-nucleo') or
-    proxmox_name is search('sv0108---afirma2pre-nucleo')
+    proxmox_name is search('sv0108---afirma2pre-nucleo') or
+    proxmox_name is search('sv0443---dpweb1pre') or
+    proxmox_name is search('sv0378---escritorioedu2pre') or
+    proxmox_name is search('sv0377---escritorioedu1pre') or
+    proxmox_name is search('sv0213---webdocpre1') or
+    proxmox_name is search('sv0181---cas1pre') or
+    proxmox_name is search('sv0103---gutilab3') or
+    proxmox_name is search('sv0102---gutilab2') or
+    proxmox_name is search('sv0101---gutilab1') or
+    proxmox_name is search('sv0071---apl8pre1') or
+    proxmox_name is search('sv0030---PostgreReportpre')
   linux_no_legacy_hosts: >-
     (proxmox_ostype is search('l26') or
     proxmox_ostype is search('linux')) and
@@ -36,17 +46,28 @@ groups:
       proxmox_name is search('sv0004---php2pre') or 
       proxmox_name is search('sv0014---liferay1des') or 
       proxmox_name is search('sv0029---sirhuse1des-pagod1des') or 
+      proxmox_name is search('sv0050---ansible1pre') or
       proxmox_name is search('sv0065---liferay1pre') or 
       proxmox_name is search('sv0107---afirma1pre-nucleo') or
       proxmox_name is search('sv0108---afirma2pre-nucleo') or 
       proxmox_name is search('sv0196---liferay2pre') or
       proxmox_name is search('sv0386---cmdb1pre') or
-      proxmox_name is search('sv0525---instdep2pre')
+      proxmox_name is search('sv0525---instdep2pre') or
+      proxmox_name is search('sv0443---dpweb1pre') or
+      proxmox_name is search('sv0378---escritorioedu2pre') or
+      proxmox_name is search('sv0377---escritorioedu1pre') or
+      proxmox_name is search('sv0213---webdocpre1') or
+      proxmox_name is search('sv0181---cas1pre') or
+      proxmox_name is search('sv0103---gutilab3') or
+      proxmox_name is search('sv0102---gutilab2') or
+      proxmox_name is search('sv0101---gutilab1') or
+      proxmox_name is search('sv0071---apl8pre1') or
+      proxmox_name is search('sv0030---PostgreReportpre')
     )
   windows_hosts: >-
     proxmox_ostype is search ('win') or
-    proxmox_name is search('sv0525---instdep2pre') or
-    proxmox_name is search('sv0386---cmdb1pre')
+    proxmox_name is search('sv0386---cmdb1pre') or
+    proxmox_name is search('sv0525---instdep2pre')
    
     
   
