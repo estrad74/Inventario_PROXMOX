@@ -37,7 +37,8 @@ groups:
     proxmox_name is search('sv0102---gutilab2') or
     proxmox_name is search('sv0101---gutilab1') or
     proxmox_name is search('sv0071---apl8pre1') or
-    proxmox_name is search('sv0030---PostgreReportpre')
+    proxmox_name is search('sv0030---PostgreReportpre') or
+    proxmox_name is search('sv0050---ansible1pre')
   linux_no_legacy_hosts: >-
     (proxmox_ostype is search('l26') or
     proxmox_ostype is search('linux')) and
@@ -62,7 +63,8 @@ groups:
       proxmox_name is search('sv0102---gutilab2') or
       proxmox_name is search('sv0101---gutilab1') or
       proxmox_name is search('sv0071---apl8pre1') or
-      proxmox_name is search('sv0030---PostgreReportpre')
+      proxmox_name is search('sv0030---PostgreReportpre') or
+      proxmox_name is search('sv0050---ansible1pre')
     )
   windows_hosts: >-
     proxmox_ostype is search ('win') or
