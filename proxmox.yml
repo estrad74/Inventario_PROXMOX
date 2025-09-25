@@ -33,9 +33,6 @@ groups:
     proxmox_name is search('sv0377---escritorioedu1pre') or
     proxmox_name is search('sv0213---webdocpre1') or
     proxmox_name is search('sv0181---cas1pre') or
-    proxmox_name is search('sv0103---gutilab3') or
-    proxmox_name is search('sv0102---gutilab2') or
-    proxmox_name is search('sv0101---gutilab1') or
     proxmox_name is search('sv0071---apl8pre1') or
     proxmox_name is search('sv0030---PostgreReportpre') or
     proxmox_name is search('sv0050---ansible1pre')
@@ -59,9 +56,6 @@ groups:
       proxmox_name is search('sv0377---escritorioedu1pre') or
       proxmox_name is search('sv0213---webdocpre1') or
       proxmox_name is search('sv0181---cas1pre') or
-      proxmox_name is search('sv0103---gutilab3') or
-      proxmox_name is search('sv0102---gutilab2') or
-      proxmox_name is search('sv0101---gutilab1') or
       proxmox_name is search('sv0071---apl8pre1') or
       proxmox_name is search('sv0030---PostgreReportpre') or
       proxmox_name is search('sv0050---ansible1pre')
