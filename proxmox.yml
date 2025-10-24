@@ -7,6 +7,8 @@ validate_certs: false
 want_facts: true
 qemu_extended_statuses: true
 use_extra_vars: true
+filters:
+  - proxmox_status == "running"
 compose:
   ansible_host: (proxmox_name | default("")) | regex_replace('---.*$', '')
 keyed_groups:
@@ -14,8 +16,6 @@ keyed_groups:
     key: proxmox_ostype
 # Añadir grupos personalizados
 groups:
-  poweredOn: >-
-    proxmox_status == "running"
   legacy_ssh_hosts: >-
     proxmox_name is search('sv0003---php1pre') or 
     proxmox_name is search('sv0004---php2pre') or 
