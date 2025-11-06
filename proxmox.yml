@@ -28,7 +28,6 @@ groups:
     proxmox_name is search('sv0108---afirma2pre-nucleo') or
     proxmox_name is search('sv0181---cas1pre') or
     proxmox_name is search('sv0213---webdocpre1')
-    )
   linux_no_legacy_hosts: >-
     (proxmox_ostype is search('l26') or proxmox_ostype is search('linux')) and
     not (
@@ -38,7 +37,7 @@ groups:
       proxmox_name is search('sv0014---liferay1des') or 
       proxmox_name is search('sv0029---sirhuse1des-pagod1des') or 
       proxmox_name is search('sv0050---ansible1pre') or
-      proxmox_name is search('sv0064---laboratorio')
+      proxmox_name is search('sv0064---laboratorio') or
       proxmox_name is search('sv0065---liferay1pre') or 
       proxmox_name is search('sv0107---afirma1pre-nucleo') or
       proxmox_name is search('sv0108---afirma2pre-nucleo') or 
