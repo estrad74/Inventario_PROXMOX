@@ -23,20 +23,22 @@ groups:
     proxmox_name is search('sv0196---liferay2pre')
   legacy_python_hosts: >-
     proxmox_name is search('sv0029---sirhuse1des-pagod1des') or 
+    proxmox_name is search('sv0050---ansible1pre') or
     proxmox_name is search('sv0107---afirma1pre-nucleo') or
     proxmox_name is search('sv0108---afirma2pre-nucleo') or
-    proxmox_name is search('sv0213---webdocpre1') or
     proxmox_name is search('sv0181---cas1pre') or
-    proxmox_name is search('sv0050---ansible1pre')
+    proxmox_name is search('sv0213---webdocpre1')
+    )
   linux_no_legacy_hosts: >-
-    (proxmox_ostype is search('l26') or
-    proxmox_ostype is search('linux')) and
+    (proxmox_ostype is search('l26') or proxmox_ostype is search('linux')) and
     not (
+      proxmox_name is search ('pruebasldap') or
       proxmox_name is search('sv0003---php1pre') or 
       proxmox_name is search('sv0004---php2pre') or 
       proxmox_name is search('sv0014---liferay1des') or 
       proxmox_name is search('sv0029---sirhuse1des-pagod1des') or 
       proxmox_name is search('sv0050---ansible1pre') or
+      proxmox_name is search('sv0064---laboratorio')
       proxmox_name is search('sv0065---liferay1pre') or 
       proxmox_name is search('sv0107---afirma1pre-nucleo') or
       proxmox_name is search('sv0108---afirma2pre-nucleo') or 
@@ -48,9 +50,12 @@ groups:
       proxmox_name is search('sv0050---ansible1pre')
     )
   windows_hosts: >-
-    proxmox_ostype is search ('win') or
+    proxmox_ostype is search('win') or
     proxmox_name is search('sv0386---cmdb1pre') or
     proxmox_name is search('sv0525---instdep2pre')
+  out_of_scope: >-
+    proxmox_name is search('pruebasldap') or
+    proxmox_name is search('sv0064---laboratorio')
    
     
   
